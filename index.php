@@ -2,22 +2,21 @@
 /**
  * Nashville Chart Builder (Single-file PHP module)
  * Copyright (C)2026 Mark Dorminy
- 
+ *
  * - Setup fields: title, composer, key, time signature, tempo
  * - Aligned beats: fixed-width beat cells in HTML preview/export (monospace)
  * - Save/Load JSON, print chart
  *
  * Requirements: PHP 7.4+ (no DB needed)
-  
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along with this program.  If not, see <https://www.gnu.org/licenses/>.    
-*/
-    
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
 ?>
 <!doctype html>
@@ -41,7 +40,6 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     }
 
-    /* Prevent grid children from forcing overflow */
     *, *::before, *::after{ box-sizing:border-box; }
 
     body{
@@ -167,16 +165,16 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
       min-width:0;
     }
 
-    /* Larger, bolder chord text + monospace for consistent alignment */
+    /* More compact editor cells */
     .measure textarea{
-      min-height:72px;
+      min-height:52px;
+      padding:6px 8px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size:16px;
-      font-weight:650;
-      letter-spacing:0.2px;
-      line-height:1.25;
+      font-size:15px;
+      font-weight:600;
+      letter-spacing:0.15px;
+      line-height:1.1;
 
-      /* Optional beat guide */
       background-image: repeating-linear-gradient(
         to right,
         rgba(147,164,199,.10) 0,
@@ -190,64 +188,59 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
 
     .footer-actions{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; min-width:0; }
 
-    /* -----------------------------
-       OPTION B LAYOUT:
-       Preview full width, then Export + Notes side-by-side
-       ----------------------------- */
-.split{
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-  min-width:0;
-}
+    .checkbox-row label{
+  		display:flex;
+  		align-items:center;   
+  		gap:10px;
+  		cursor:pointer;
+	  }
 
-/* FULL WIDTH */
-.split-preview{
-  width:100%;
-  min-width:0;
-}
 
-/* NOTES FULL WIDTH + FLEX COLUMN */
-.notes-container{
-  display:flex;
-  flex-direction:column;
-  min-width:0;
-}
+	.checkbox-row input[type="checkbox"]{
+  		width:auto;
+  		padding:0;
+  		margin:0;
+  		transform: scale(1.05); /* optional */
+	  }
 
-      
-   
 
-#notes{
-  flex:1;
-  min-height:140px;
-  resize:vertical;
-}
-
-    pre{
-      background: #070b14; border:1px solid var(--border);
-      border-radius: 14px; padding: 12px; overflow:auto;
-      color: #dbe7ff; margin:0;
-      font-size: 12px; line-height: 1.35;
-      white-space: pre;
-      max-width:100%;
+    /* Layout */
+    .split{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      min-width:0;
+    }
+    .split-preview{
+      width:100%;
+      min-width:0;
+    }
+    .notes-container{
+      display:flex;
+      flex-direction:column;
       min-width:0;
     }
 
-    /* -----------------------------
-       HTML Preview Styles
-       ----------------------------- */
+    #notes{
+      flex:1;
+      min-height:140px;
+      resize:vertical;
+    }
+
+    /* Preview */
     .preview{
       background: #070b14;
       border:1px solid var(--border);
       border-radius: 14px;
       padding: 12px;
-      overflow:auto;          /* scroll INSIDE preview if needed */
+      overflow:auto;
       min-height: 120px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-family: "JetBrains Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       width:100%;
       max-width:100%;
       min-width:0;
     }
+
     .p-meta{
       display:flex;
       flex-wrap:wrap;
@@ -260,6 +253,21 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
     }
     .p-meta strong{ color: var(--text); }
 
+    .p-title{
+      margin-bottom:2px;
+    }
+
+    .p-meta-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px 14px;
+      align-items:baseline;
+    }
+
+    .p-meta-item{
+      white-space:nowrap;
+    }
+
     .p-sectionTitle{
       margin: 10px 0 6px;
       font-size: 12px;
@@ -267,9 +275,29 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
       text-transform: uppercase;
       color: rgba(232,238,252,.92);
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      display:flex;
+      align-items:center;
+      gap:10px;
     }
 
-    /* Full-width preview bars with refined spacing */
+ .p-sec-letter{
+  font-weight:700;
+  min-width:1.8em;
+  height:1.8em;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(232,238,252,.75);
+  border-radius:4px;
+  color: rgba(232,238,252,.98);
+  background: rgba(255,255,255,.04);
+  line-height:1;
+}
+
+    .p-sec-name{
+      flex:1;
+    }
+
     .p-line{
       display: grid;
       grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
@@ -303,7 +331,7 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
       letter-spacing: 0.03em;
     }
     .p-beat:last-child{ border-right:none; }
-    .p-dot{ color: rgba(147,164,199,.55); } /* for "." beats */
+    .p-dot{ color: rgba(147,164,199,.55); }
 
     .p-notesTitle{
       margin-top: 12px;
@@ -319,216 +347,197 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
       font-size: 13px;
       white-space: pre-wrap;
       margin-top: 6px;
-      display:block !important; 
+      display:block !important;
     }
 
     @media (max-width: 900px){
       .row, .row3{ grid-template-columns: 1fr; }
       .line{ grid-template-columns: 1fr; }
-
-      /* Option B responsive: bottom row stacks */
-      .split{ grid-template-columns: 1fr; }
-      .split-bottom{ grid-template-columns: 1fr; }
     }
-      
- button + button {
-  margin-left: 4px;
-}     
 
-/* -----------------------------
-   PRINT (Clean Session Sheet)
-   ----------------------------- */
-@media print {
+    button + button {
+      margin-left: 4px;
+    }
 
-  body{
-    background:white !important;
-    color:black !important;
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    line-height: 1.05;   /* tighter vertical rhythm */ 
-  }
+    /* -----------------------------
+       PRINT (Clean Session Sheet)
+       ----------------------------- */
+    @media print {
 
-  .wrap{
-    max-width:100%;
-    padding:0;
-  }
+      body{
+        background:white !important;
+        color:black !important;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        line-height: 1.05;
+      }
 
-  /*  REMOVE UI / INSTRUCTIONS / LABELS */
-  #setupCard,
-  #builderCard header,
-  #sections,
-  .footer-actions,
-  label,
-  button,
-  .muted,
-  .sub {
-    display:none !important;
-  }
+      .wrap{
+        max-width:100%;
+        padding:0;
+      }
 
-  /*  REMOVE MAIN APP TITLE */
-  h1{
-    display:none !important;
-  }
+      #setupCard,
+      #builderCard header,
+      #sections,
+      .footer-actions,
+      label,
+      button,
+      .muted,
+      .sub {
+        display:none !important;
+      }
 
-  /*  SHOW ONLY PREVIEW AREA */
-  .split,
-  .split-preview{
-    display:block !important;
-    width:100% !important;
-  }
+      h1{
+        display:none !important;
+      }
 
-  .split-bottom{
-    display:none !important;
-  }
+      .split,
+      .split-preview{
+        display:block !important;
+        width:100% !important;
+      }
 
- /*  REMOVE editor notes completely */
-.notes-container{
-  display:none !important;
-}
+      .notes-container{
+        display:none !important;
+      }
 
-  /*  CLEAN PREVIEW CONTAINER */
-  .preview{
-    border:none !important;
-    box-shadow:none !important;
-    background:white !important;
-    padding:0;
-    margin:0;
-    overflow:visible;
-  }
+      .preview{
+        border:none !important;
+        box-shadow:none !important;
+        background:white !important;
+        padding:0;
+        margin:0;
+        overflow:visible;
+      }
 
-  /*  REMOVE ALL VISUAL BOXES */
-  .p-bar,
-  .card,
-  .measure{
-    border:none !important;
-    box-shadow:none !important;
-    background:none !important;
-  }
+      .p-bar,
+      .card,
+      .measure{
+        border:none !important;
+        box-shadow:none !important;
+        background:none !important;
+      }
 
-   .p-bar{
-  		display:grid;
-  		grid-template-columns: repeat(var(--beats), minmax(1.6em, 1fr));
-  		width:100%;
-        border-right: 1px solid rgba(0,0,0,1);
-	}
+      .p-bar{
+        display:grid;
+        grid-template-columns: repeat(var(--beats), minmax(1.6em, 1fr));
+        width:100%;
+        border-right: 1px solid #000 !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+      }
 
-  
-.p-beat{
-  border:none !important;  
+      .p-beat{
+        font-size:12pt;
+        text-align:center;
+        min-height: 0 !important;
+        height: auto !important;
+        padding: 1px 4px !important;
+        line-height: 1.05 !important;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border-right: none !important;
+      }
 
-  font-size:12pt;
-  text-align:center;
+      .p-line{
+        display:grid;
+        grid-template-columns: repeat(var(--cols), 1fr);
+        gap: 2px;
+        margin-bottom: 0;
+        page-break-inside: avoid;
+        line-height: 1.0;
+      }
 
-  min-height: 0 !important;   /* CRITICAL: remove tall cells */
-  height: auto !important;
+      .p-meta{
+        display:block;
+        margin-bottom:6px;
+      }
 
-  padding: 2px 3px !important; /* no vertical padding */
-  line-height: 1.0 !important;
+      .p-title strong{
+        font-size:18pt;
+        font-weight:700;
+        color: black !important;
+        margin-bottom:2px;
+      }
 
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
+      .p-meta-row{
+        display:grid;
+        grid-template-columns: repeat(4, auto);
+        gap: 8px 24px;
+        margin-bottom: 2px;
+        font-size:11pt;
+      }
 
-  display:flex;
+      .p-meta-item{
+        white-space:nowrap;
+      }
+
+      .p-meta strong{
+        font-weight:700;
+      }
+
+      .p-sectionTitle{
+        margin:4px 0 2px;
+        font-size:11pt;
+        font-weight:bold;
+        text-transform:none;
+        line-height: 1.05;
+        display:flex;
+        align-items:center;
+        gap:10px;
+      }
+
+.p-sec-letter{
+  font-weight:700;
+  min-width:1.8em;
+  height:1.8em;
+  display:inline-flex;
   align-items:center;
   justify-content:center;
+  border:1px solid rgba(0,0,0,0.25);
+  border-radius:0;
+  color: rgba(0,0,0,0.25) !important;
+  background:none;
+  line-height:1;
 }
 
-  /*  GRID FITTED TO PAGE WIDTH */
-  .p-line{
-    display:grid;
-    grid-template-columns: repeat(var(--cols), 1fr);
-    gap: 2px;
-    margin-bottom: 0px;
-    page-break-inside: avoid;
-    line-height: 1.0;  
-  }
+      .p-sec-name{
+        flex:1;
+      }
 
-/*  META CONTAINER */
-.p-meta{
-  display:block;
-  margin-bottom:6px;
-}
+      .p-beat.long{
+        font-size: 9.5pt;
+      }
 
-/*  TITLE LINE */
-.p-title strong{
-  font-size:18pt;
-  font-weight:700;
-  color: black !important;
-  margin-bottom:2px;
-}
+      .p-beat.xlong{
+        font-size: 8.5pt;
+      }
 
-/*  METADATA ROW (COLUMN GRID) */
-.p-meta-row{
-  display:grid;
-  grid-template-columns: repeat(4, auto);
-  gap: 8px 24px;
-  margin-bottom: 2px;  
-  font-size:11pt;
-}
+      .p-notesTitle{
+        margin-top:6px;
+        font-size:11pt;
+        font-weight:bold;
+      }
 
-/*  INDIVIDUAL ITEMS */
-.p-meta-item{
-  white-space:nowrap;
-}
+      .p-notes{
+        font-size:10pt;
+        margin-top: 2px !important;
+      }
 
-  .p-meta strong{
-    font-weight:700;
-  }
+      @page{
+        size: letter;
+        margin: 0.5in;
+      }
 
-  /*  SECTION LABELS CLEAN */
-  .p-sectionTitle{
-    margin:4px 0 2px;
-    font-size:11pt;
-    font-weight:bold;
-    text-transform:none;
-    line-height: 1.05; 
-  }
-
-/*  Default beat text */
-.p-beat{
-  font-size: 11pt;
-  padding: 1px 4px;    /* tighter cell padding */
-  line-height: 1.05;
-}
-
-/*  Medium-length chords */
-.p-beat.long{
-  font-size: 9.5pt;
-}
-
-/*  Very long chords */
-.p-beat.xlong{
-  font-size: 8.5pt;
-}
-    
-    
-    
-  /*  NOTES */
-  .p-notesTitle{
-    margin-top:6px;
-    font-size:11pt;
-    font-weight:bold;
-  }
-
-  .p-notes{
-    font-size:10pt;
-    margin-top: 2px !important; 
-  }
-
-  /*  PAGE SETUP */
-  @page{
-    size: letter;
-    margin: 0.5in;
-  }
-
-  /*  PREVENT BAD PAGE BREAKS */
-  .p-line,
-  .p-sectionTitle{
-    break-inside: avoid;
-  }
-
-}  
-      
+      .p-line,
+      .p-sectionTitle{
+        break-inside: avoid;
+      }
+    }
   </style>
 </head>
 <body>
@@ -591,6 +600,15 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
           </div>
         </div>
 
+
+		<div class="row" style="margin-top:12px;">
+   			<div class="checkbox-row">
+    		<label>
+      			<input id="showSectionLetters" type="checkbox" checked>Section letters   
+    		</label>
+   			</div>
+		</div>
+
         <div class="row3" style="margin-top:12px;">
           <div>
             <label for="cellWidth">Beat cell width (characters)</label>
@@ -626,7 +644,7 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
 
         <div class="muted" style="margin-top:10px;">
           Enter one token per beat in each bar (separate with spaces). Examples (4/4):
-          <code>1 . 4 .</code> 
+          <code>1 . 4 .</code>
           &nbsp; Push: <code>^4</code>
           &nbsp; Hold: <code>1~</code>
           &nbsp; Choke: <code>1!</code>
@@ -646,11 +664,9 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
       <div class="content">
         <div id="sections"></div>
 
-<div style="margin-top:10px;">
-  <button id="addSectionBottomBtn" class="primary" type="button">
-    + Add Section
-  </button>
-</div>
+        <div style="margin-top:10px;">
+          <button id="addSectionBottomBtn" class="primary" type="button">+ Add Section</button>
+        </div>
 
         <div class="footer-actions" style="margin-top:8px;">
           <button id="printBtn" type="button">Print Chart</button>
@@ -662,27 +678,21 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
           </label>
         </div>
 
-        <!-- OPTION B: Preview full width, Export+Notes below -->
-<div class="split" style="margin-top:14px;">
+        <div class="split" style="margin-top:14px;">
+          <div class="split-preview">
+            <label>Chart</label>
+            <div id="htmlPreview" class="preview"></div>
+          </div>
 
-  <!--  FULL WIDTH PREVIEW -->
-  <div class="split-preview">
-    <label>Chart</label>
-    <div id="htmlPreview" class="preview"></div>
-  </div>
+          <div class="notes-container">
+            <label>Notes (optional)</label>
+            <textarea id="notes" placeholder="Hits, cues, arrangement notes, lyrics cues..."></textarea>
+            <div class="muted" style="margin-top:10px;">
+              Everything stays in-browser until you download JSON.
+            </div>
+          </div>
+        </div>
 
-  <!--  NOTES (FULL WIDTH BELOW) -->
-  <div class="notes-container">
-    <label>Notes (optional)</label>
-    <textarea id="notes" placeholder="Hits, cues, arrangement notes, lyrics cues..."></textarea>
-    <div class="muted" style="margin-top:10px;">
-      Everything stays in-browser until you download JSON.
-    </div>
-  </div>
-
-</div>
-          
-          
       </div>
     </section>
 
@@ -693,21 +703,36 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
   // ---------- Data Model ----------
   const state = {
     meta: {
-      title:"", composer:"", key:"", timeSig:"", tempo:"",
+      title:"",
+      composer:"",
+      key:"",
+      timeSig:"",
+      tempo:"",
       notation:"numbers",
       barsPerLine:4,
-      cellWidth: 10,
-      beatGuidePx: 64,
-      beatsOverride: ""
+      cellWidth:6,
+      beatGuidePx:64,
+      beatsOverride:"",
+      showSectionLetters:true
     },
-    notes: "",
-    sections: []
+    notes:"",
+    sections:[]
   };
 
   const defaultSectionTypes = ["Intro","Verse","Pre-Chorus","Chorus","Bridge","Tag","Outro","Solo","Turnaround","Vamp"];
 
   function newSection(name="Verse", bars=8) {
     return { id: crypto.randomUUID(), name, bars, lines: [] };
+  }
+
+  function sectionLetter(index) {
+    let n = index;
+    let out = "";
+    do {
+      out = String.fromCharCode(65 + (n % 26)) + out;
+      n = Math.floor(n / 26) - 1;
+    } while (n >= 0);
+    return out;
   }
 
   function ensureLines(section) {
@@ -760,21 +785,237 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
     return out;
   }
 
-  //  Correct escaping for preview/export rendering
+  // ---------- Nashville Number / Letter Conversion ----------
+  const SHARP_SCALE = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+  const FLAT_SCALE  = ["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"];
+  const FLAT_KEYS = new Set(["F","Bb","Eb","Ab","Db","Gb","Cb"]);
+
+  const MAJOR_SCALE_OFFSETS = {
+    "1": 0,
+    "2": 2,
+    "3": 4,
+    "4": 5,
+    "5": 7,
+    "6": 9,
+    "7": 11
+  };
+
+  function normalizeNote(note) {
+    return String(note || "").trim()
+      .replace(/♯/g, "#")
+      .replace(/♭/g, "b");
+  }
+
+  function getChromaticForKey(keyRaw) {
+    const key = String(keyRaw || "").trim();
+    return FLAT_KEYS.has(key) ? FLAT_SCALE : SHARP_SCALE;
+  }
+
+  function findNoteIndex(noteRaw) {
+    const note = normalizeNote(noteRaw);
+    let idx = SHARP_SCALE.indexOf(note);
+    if (idx !== -1) return idx;
+    idx = FLAT_SCALE.indexOf(note);
+    return idx;
+  }
+
+  function getScaleForKey(keyRaw) {
+    const key = String(keyRaw || "").trim();
+    if (!key) return null;
+
+    const chromatic = getChromaticForKey(key);
+    let tonicIndex = chromatic.indexOf(key);
+
+    if (tonicIndex === -1) {
+      tonicIndex = findNoteIndex(key);
+      if (tonicIndex === -1) return null;
+    }
+
+    const scale = {};
+    Object.entries(MAJOR_SCALE_OFFSETS).forEach(([degree, semis]) => {
+      scale[degree] = chromatic[(tonicIndex + semis) % 12];
+    });
+
+    return scale;
+  }
+
+  function getReverseScaleForKey(keyRaw) {
+    const scale = getScaleForKey(keyRaw);
+    if (!scale) return null;
+
+    const reverse = {};
+    Object.entries(scale).forEach(([deg, note]) => {
+      reverse[note] = deg;
+    });
+    return reverse;
+  }
+
+  function splitSpecialSuffix(token) {
+    let t = String(token || "").trim();
+    let special = "";
+
+    if (t.endsWith("~")) {
+      special = "~";
+      t = t.slice(0, -1);
+    } else if (t.endsWith("!")) {
+      special = "!";
+      t = t.slice(0, -1);
+    }
+
+    return { core: t, special };
+  }
+
+  function parseNumberChord(token) {
+    const { core, special } = splitSpecialSuffix(token);
+    const m = core.match(/^([b#]?[1-7])([A-Za-z0-9()+\-]*)$/);
+    if (!m) return null;
+    return {
+      degree: m[1],
+      suffix: m[2] || "",
+      special
+    };
+  }
+
+  function parseLetterChord(token) {
+    const { core, special } = splitSpecialSuffix(token);
+    const m = core.match(/^([A-G](?:#|b)?)(.*)$/i);
+    if (!m) return null;
+    return {
+      root: m[1],
+      suffix: m[2] || "",
+      special
+    };
+  }
+
+  function numberTokenToLetter(token, key) {
+    const t = String(token || "").trim();
+    if (!t || t === ".") return t;
+
+    if (t.startsWith("^")) {
+      return "^" + numberTokenToLetter(t.slice(1), key);
+    }
+
+    if (t.startsWith("(") && t.endsWith(")")) {
+      const inner = t.slice(1, -1).trim();
+      return "(" + inner.split(/\s+/).map(x => numberTokenToLetter(x, key)).join(" ") + ")";
+    }
+
+    if (t.includes("/")) {
+      const [left, right] = t.split("/");
+      return numberTokenToLetter(left, key) + "/" + numberTokenToLetter(right, key);
+    }
+
+    const parsed = parseNumberChord(t);
+    if (!parsed) return t;
+
+    const scale = getScaleForKey(key);
+    if (!scale) return t;
+
+    let accidental = "";
+    let degree = parsed.degree;
+
+    if (/^[b#]/.test(degree)) {
+      accidental = degree[0];
+      degree = degree.slice(1);
+    }
+
+    let root = scale[degree];
+    if (!root) return t;
+
+    if (accidental) {
+      const chromatic = getChromaticForKey(key);
+      let idx = chromatic.indexOf(root);
+      if (idx === -1) idx = findNoteIndex(root);
+      if (idx === -1) return t;
+
+      if (accidental === "b") idx = (idx + 11) % 12;
+      if (accidental === "#") idx = (idx + 1) % 12;
+      root = chromatic[idx];
+    }
+
+    return root + parsed.suffix + parsed.special;
+  }
+
+  function letterTokenToNumber(token, key) {
+    const t = String(token || "").trim();
+    if (!t || t === ".") return t;
+
+    if (t.startsWith("^")) {
+      return "^" + letterTokenToNumber(t.slice(1), key);
+    }
+
+    if (t.startsWith("(") && t.endsWith(")")) {
+      const inner = t.slice(1, -1).trim();
+      return "(" + inner.split(/\s+/).map(x => letterTokenToNumber(x, key)).join(" ") + ")";
+    }
+
+    if (t.includes("/")) {
+      const [left, right] = t.split("/");
+      return letterTokenToNumber(left, key) + "/" + letterTokenToNumber(right, key);
+    }
+
+    const parsed = parseLetterChord(t);
+    if (!parsed) return t;
+
+    const reverse = getReverseScaleForKey(key);
+    const scale = getScaleForKey(key);
+    const chromatic = getChromaticForKey(key);
+
+    if (!reverse || !scale) return t;
+
+    const root = normalizeNote(parsed.root);
+
+    if (reverse[root]) {
+      return reverse[root] + parsed.suffix + parsed.special;
+    }
+
+    const noteIdx = findNoteIndex(root);
+    if (noteIdx === -1) return t;
+
+    for (const [deg, note] of Object.entries(scale)) {
+      let scaleIdx = chromatic.indexOf(note);
+      if (scaleIdx === -1) scaleIdx = findNoteIndex(note);
+      if (scaleIdx === -1) continue;
+
+      if ((scaleIdx + 1) % 12 === noteIdx) {
+        return "#" + deg + parsed.suffix + parsed.special;
+      }
+      if ((scaleIdx + 11) % 12 === noteIdx) {
+        return "b" + deg + parsed.suffix + parsed.special;
+      }
+    }
+
+    return t;
+  }
+
+  function convertTokenForDisplay(token, notationMode, key) {
+    const t = String(token || "").trim();
+    if (!t) return ".";
+
+    if (notationMode === "letters") {
+      return numberTokenToLetter(t, key);
+    }
+
+    if (notationMode === "numbers") {
+      return letterTokenToNumber(t, key);
+    }
+
+    return t;
+  }
+
   function escapeHtml(s){
     return String(s ?? "")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
   }
 
   // ---------- DOM ----------
   const el = (id) => document.getElementById(id);
   const sectionsEl = el("sections");
   const htmlPreviewEl = el("htmlPreview");
-
 
   // Meta bindings
   ["title","composer","key","timeSig","tempo"].forEach(k => {
@@ -784,7 +1025,10 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
     });
   });
 
-  el("notation").addEventListener("change", () => { state.meta.notation = el("notation").value; renderAll(); });
+  el("notation").addEventListener("change", () => {
+    state.meta.notation = el("notation").value;
+    renderAll();
+  });
 
   el("barsPerLine").addEventListener("change", () => {
     state.meta.barsPerLine = parseInt(el("barsPerLine").value, 10);
@@ -793,8 +1037,14 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
     renderAll();
   });
 
+  el("showSectionLetters").addEventListener("change", () => {
+    state.meta.showSectionLetters = el("showSectionLetters").checked;
+    renderSections();
+    renderAll();
+  });
+
   el("cellWidth").addEventListener("change", () => {
-    state.meta.cellWidth = parseInt(el("cellWidth").value, 10) || 10;
+    state.meta.cellWidth = parseInt(el("cellWidth").value, 10) || 6;
     renderAll();
   });
 
@@ -808,30 +1058,39 @@ function h($s) { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
     renderAll();
   });
 
-  el("notes").addEventListener("input", () => { state.notes = el("notes").value; renderAll(); });
+  el("notes").addEventListener("input", () => {
+    state.notes = el("notes").value;
+    renderAll();
+  });
+
+  // ---------- Print mode flag ----------
+  let printing = false;
+
+  function isPrintMode() {
+    return printing;
+  }
 
   // Buttons
- el("addSectionBtn").addEventListener("click", () => {
-  const s = newSection("Verse", 8);
-  ensureLines(s);
-  state.sections.push(s);
+  el("addSectionBtn").addEventListener("click", () => {
+    const s = newSection("Verse", 8);
+    ensureLines(s);
+    state.sections.push(s);
 
-  renderSections();
-  renderAll();
+    renderSections();
+    renderAll();
 
-  //  Smooth scroll to the newly added section
-  setTimeout(() => {
-    const allSections = document.querySelectorAll(".section");
-    const last = allSections[allSections.length - 1];
-    if (last) {
-      last.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, 50);
-});
+    setTimeout(() => {
+      const allSections = document.querySelectorAll(".section");
+      const last = allSections[allSections.length - 1];
+      if (last) {
+        last.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 50);
+  });
 
-el("addSectionBottomBtn").addEventListener("click", () => {
-  el("addSectionBtn").click();
-});
+  el("addSectionBottomBtn").addEventListener("click", () => {
+    el("addSectionBtn").click();
+  });
 
   el("clearBtn").addEventListener("click", () => {
     state.sections = [];
@@ -839,13 +1098,24 @@ el("addSectionBottomBtn").addEventListener("click", () => {
     el("notes").value = "";
     renderSections();
     renderAll();
-//    htmlExportEl.textContent = "";
   });
 
-    el("printBtn").addEventListener("click", () => {
-  	window.print();
+  el("printBtn").addEventListener("click", () => {
+    printing = true;
+    renderAll();
+    setTimeout(() => window.print(), 50);
   });
-    
+
+  window.addEventListener("beforeprint", () => {
+    printing = true;
+    renderAll();
+  });
+
+  window.addEventListener("afterprint", () => {
+    printing = false;
+    renderAll();
+  });
+
   // JSON
   el("downloadJsonBtn").addEventListener("click", () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
@@ -860,8 +1130,12 @@ el("addSectionBottomBtn").addEventListener("click", () => {
     const file = ev.target.files?.[0];
     if (!file) return;
     const text = await file.text();
-    try { hydrate(JSON.parse(text)); toast("Loaded JSON."); }
-    catch(e) { toast("Invalid JSON file."); }
+    try {
+      hydrate(JSON.parse(text));
+      toast("Loaded JSON.");
+    } catch(e) {
+      toast("Invalid JSON file.");
+    }
     ev.target.value = "";
   });
 
@@ -910,7 +1184,9 @@ el("addSectionBottomBtn").addEventListener("click", () => {
         if (nameSel.value === "__custom") {
           const custom = prompt("Section name:", section.name) || section.name;
           section.name = custom;
-        } else section.name = nameSel.value;
+        } else {
+          section.name = nameSel.value;
+        }
         renderSections();
         renderAll();
       });
@@ -930,7 +1206,9 @@ el("addSectionBottomBtn").addEventListener("click", () => {
       });
 
       const label = document.createElement("strong");
-      label.textContent = `${section.name}`;
+      label.textContent = state.meta.showSectionLetters
+        ? `${sectionLetter(sidx)}  ${section.name}`
+        : `${section.name}`;
 
       const pill = document.createElement("span");
       pill.className = "pill";
@@ -966,70 +1244,61 @@ el("addSectionBottomBtn").addEventListener("click", () => {
         renderAll();
       });
 
-const dupBtn = document.createElement("button");
-dupBtn.type = "button";
-dupBtn.textContent = "Duplicate section";
-dupBtn.addEventListener("click", () => {
+      const dupBtn = document.createElement("button");
+      dupBtn.type = "button";
+      dupBtn.textContent = "Duplicate section";
+      dupBtn.addEventListener("click", () => {
+        const clone = JSON.parse(JSON.stringify(section));
+        clone.id = crypto.randomUUID();
+        clone.name = clone.name + " (copy)";
 
-  //  Deep clone section (including all lines/measures)
-  const clone = JSON.parse(JSON.stringify(section));
+        clone.lines.forEach(line => {
+          line.id = crypto.randomUUID();
+          line.measures.forEach(me => {
+            me.id = crypto.randomUUID();
+          });
+        });
 
-  //  Regenerate IDs so DOM + state stay stable
-  clone.id = crypto.randomUUID();
-  clone.name = clone.name + " (copy)";
+        state.sections.splice(sidx + 1, 0, clone);
 
-  clone.lines.forEach(line => {
-    line.id = crypto.randomUUID();
-    line.measures.forEach(me => {
-      me.id = crypto.randomUUID();
-    });
-  });
+        renderSections();
+        renderAll();
 
-  //  Insert directly below current section
-  state.sections.splice(sidx + 1, 0, clone);
+        setTimeout(() => {
+          const allSections = document.querySelectorAll(".section");
+          const target = allSections[sidx + 1];
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }, 50);
+      });
 
-  renderSections();
-  renderAll();
+      const addBelowBtn = document.createElement("button");
+      addBelowBtn.type = "button";
+      addBelowBtn.textContent = "+ Add section below";
+      addBelowBtn.addEventListener("click", () => {
+        const newSec = newSection("Verse", 8);
+        ensureLines(newSec);
 
-  //  Scroll to duplicated section
-  setTimeout(() => {
-    const allSections = document.querySelectorAll(".section");
-    const target = allSections[sidx + 1];
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, 50);
-});
-      
-    const addBelowBtn = document.createElement("button");
-		addBelowBtn.type = "button";
-		addBelowBtn.textContent = "+ Add section below";
+        state.sections.splice(sidx + 1, 0, newSec);
 
-		addBelowBtn.addEventListener("click", () => {
-  	const newSec = newSection("Verse", 8);
-  		ensureLines(newSec);
+        renderSections();
+        renderAll();
 
-  	//  Insert directly after current section
-  	state.sections.splice(sidx + 1, 0, newSec);
+        setTimeout(() => {
+          const allSections = document.querySelectorAll(".section");
+          const target = allSections[sidx + 1];
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }, 50);
+      });
 
-  	renderSections();
-  	renderAll();
+      right.appendChild(addLineBtn);
+      right.appendChild(delBtn);
+      right.appendChild(addBelowBtn);
+      right.appendChild(dupBtn);
 
-  //  Scroll to the newly inserted section
-  setTimeout(() => {
-    const allSections = document.querySelectorAll(".section");
-    const target = allSections[sidx + 1];
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, 50);
-});    
-         
-right.appendChild(addLineBtn);
-right.appendChild(delBtn);
-right.appendChild(addBelowBtn);
-right.appendChild(dupBtn);
- 
       top.appendChild(left);
       top.appendChild(right);
 
@@ -1045,13 +1314,20 @@ right.appendChild(dupBtn);
 
         const lineLabel = document.createElement("input");
         lineLabel.value = line.label;
-        lineLabel.addEventListener("input", () => { line.label = lineLabel.value; renderAll(); });
+        lineLabel.addEventListener("input", () => {
+          line.label = lineLabel.value;
+          renderAll();
+        });
 
         const small = document.createElement("div");
         small.className = "muted";
         small.textContent = `Measures: ${line.measures.length}`;
 
-        meta.appendChild((() => { const l=document.createElement("label"); l.textContent="Line label"; return l; })());
+        meta.appendChild((() => {
+          const l = document.createElement("label");
+          l.textContent = "Line label";
+          return l;
+        })());
         meta.appendChild(lineLabel);
         meta.appendChild(small);
 
@@ -1077,7 +1353,10 @@ right.appendChild(dupBtn);
             : "One token per beat: e.g., 1 . 4 .";
           ta.value = m.text;
 
-          ta.addEventListener("input", () => { m.text = ta.value; renderAll(); });
+          ta.addEventListener("input", () => {
+            m.text = ta.value;
+            renderAll();
+          });
 
           mEl.appendChild(mLab);
           mEl.appendChild(ta);
@@ -1096,13 +1375,12 @@ right.appendChild(dupBtn);
     });
   }
 
-  // Build a preview body (chart only) as HTML
+  // Build preview body (chart only)
   function buildHtmlBody() {
     const cols = parseInt(state.meta.barsPerLine, 10) || 4;
     const beats = effectiveBeatsPerBar();
-    const cellWidth = parseInt(state.meta.cellWidth, 10) || 10;
+    const cellWidth = parseInt(state.meta.cellWidth, 10) || 6;
 
-    // Drive CSS vars for preview sizing
     document.documentElement.style.setProperty("--cols", cols);
     document.documentElement.style.setProperty("--beats", beats);
     document.documentElement.style.setProperty("--cellCh", cellWidth + "ch");
@@ -1114,28 +1392,69 @@ right.appendChild(dupBtn);
       return out;
     }
 
-    state.sections.forEach(sec => {
+    state.sections.forEach((sec, sidx) => {
       ensureLines(sec);
-      out += `<div class="p-sectionTitle">${escapeHtml(sec.name)} (${escapeHtml(sec.bars)} bars)</div>`;
+
+      if (state.meta.showSectionLetters) {
+        out += `
+          <div class="p-sectionTitle">
+            <span class="p-sec-letter">${sectionLetter(sidx)}</span>
+            <span class="p-sec-name">${escapeHtml(sec.name)} (${escapeHtml(sec.bars)} bars)</span>
+          </div>
+        `;
+      } else {
+        out += `
+          <div class="p-sectionTitle">
+            <span class="p-sec-name">${escapeHtml(sec.name)} (${escapeHtml(sec.bars)} bars)</span>
+          </div>
+        `;
+      }
 
       sec.lines.forEach(line => {
         out += `<div class="p-line">`;
         line.measures.forEach(mm => {
           const tokens = splitIntoBeatTokens(mm.text, beats);
           out += `<div class="p-bar">`;
- 
-            tokens.forEach(tok => {
-  			const t = (tok ?? ".").trim() || ".";
 
-  			let sizeClass = "";
-  			if (t.length >= 6) sizeClass = "xlong";
-  			else if (t.length >= 4) sizeClass = "long";
+          tokens.forEach(tok => {
+            const raw = (tok ?? ".").trim() || ".";
+            const isDot = raw === ".";
 
- 			const cls = t === "."
-    		? "p-beat p-dot"
-    		: `p-beat ${sizeClass}`;                                   
-            out += `<div class="${cls}">${escapeHtml(t === "." ? "·" : t)}</div>`;
+            let converted = convertTokenForDisplay(raw, state.meta.notation, state.meta.key);
+
+            let base = converted;
+            let hasFermata = false;
+            let hasChoke = false;
+
+            if (!isDot && converted.endsWith("~")) {
+              hasFermata = true;
+              base = converted.slice(0, -1) || ".";
+            } else if (!isDot && converted.endsWith("!")) {
+              hasChoke = true;
+              base = converted.slice(0, -1) || ".";
+            }
+
+            let display = base;
+
+            if (isPrintMode()) {
+              if (hasFermata) display += "◊";
+              if (hasChoke) display += "▼";
+            } else {
+              if (hasFermata) display += "~";
+              if (hasChoke) display += "!";
+            }
+
+            let sizeClass = "";
+            if (display.length >= 8) sizeClass = "xlong";
+            else if (display.length >= 5) sizeClass = "long";
+
+            const cls = isDot
+              ? "p-beat p-dot"
+              : `p-beat ${sizeClass}`.trim();
+
+            out += `<div class="${cls}">${escapeHtml(isDot ? "·" : display)}</div>`;
           });
+
           out += `</div>`;
         });
         out += `</div>`;
@@ -1146,6 +1465,7 @@ right.appendChild(dupBtn);
       out += `<div class="p-notesTitle">Notes / Cues</div>`;
       out += `<div class="p-notes">${escapeHtml(state.notes.trim())}</div>`;
     }
+
     return out;
   }
 
@@ -1157,20 +1477,19 @@ right.appendChild(dupBtn);
     if (m.key?.trim()) metaParts.push(`Key: <strong>${escapeHtml(m.key.trim())}</strong>`);
     if (m.timeSig?.trim()) metaParts.push(`Time: <strong>${escapeHtml(m.timeSig.trim())}</strong>`);
     if (m.tempo?.trim()) metaParts.push(`Tempo: <strong>${escapeHtml(m.tempo.trim())}${m.tempo ? " BPM" : ""}</strong>`);
- //   if (m.notation) metaParts.push(`Notation: <strong>${escapeHtml(m.notation)}</strong>`);
 
+    const meta = `
+      <div class="p-meta">
+        <div class="p-title">${metaParts[0] || ""}</div>
+        <div class="p-meta-row">
+          ${metaParts.slice(1).map(p => `<div class="p-meta-item">${p}</div>`).join("")}
+        </div>
+      </div>
+    `;
 
-  const meta = `
-  <div class="p-meta">
-    <div class="p-title">${metaParts[0] || ""}</div>
-    <div class="p-meta-row">
-      ${metaParts.slice(1).map(p => `<div class="p-meta-item">${p}</div>`).join("")}
-    </div>
-  </div>
-`; 
     htmlPreviewEl.innerHTML = meta + buildHtmlBody();
   }
-    
+
   function renderAll() {
     document.documentElement.style.setProperty("--beatGuidePx", (state.meta.beatGuidePx || 64) + "px");
     renderHtmlPreview();
@@ -1199,9 +1518,10 @@ right.appendChild(dupBtn);
     el("tempo").value = state.meta.tempo || "";
     el("notation").value = state.meta.notation || "numbers";
     el("barsPerLine").value = String(state.meta.barsPerLine || 4);
-    el("cellWidth").value = String(state.meta.cellWidth || 10);
+    el("cellWidth").value = String(state.meta.cellWidth || 6);
     el("beatGuidePx").value = String(state.meta.beatGuidePx || 64);
     el("beatsOverride").value = String(state.meta.beatsOverride || "");
+    el("showSectionLetters").checked = state.meta.showSectionLetters !== false;
     el("notes").value = state.notes || "";
 
     document.documentElement.style.setProperty("--beatGuidePx", (state.meta.beatGuidePx || 64) + "px");
