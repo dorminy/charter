@@ -1,0 +1,73 @@
+{
+  "meta": {
+    "title": "This Little Light of Mine",
+    "composer": "Traditional",
+    "key": "G",
+    "timeSig": "4/4",
+    "tempo": "112",
+    "barsPerLine": 4,
+    "showSectionLetters": true,
+    "showBarNumbers": false
+  },
+  "notes": "Traditional spiritual. Moderate gospel swing feel. Repeat chorus as desired.",
+  "sections": [
+    {
+      "id": "sec_intro",
+      "name": "Intro",
+      "letter": "A",
+      "bars": [
+        { "id": "a1", "text": "1" },
+        { "id": "a2", "text": "1" },
+        { "id": "a3", "text": "4" },
+        { "id": "a4", "text": "5" }
+      ]
+    },
+    {
+      "id": "sec_verse",
+      "name": "Verse",
+      "letter": "B",
+      "bars": [
+        { "id": "b1", "text": "1" },
+        { "id": "b2", "text": "1" },
+        { "id": "b3", "text": "4" },
+        { "id": "b4", "text": "1" },
+
+        { "id": "b5", "text": "1" },
+        { "id": "b6", "text": "1" },
+        { "id": "b7", "text": "5" },
+        { "id": "b8", "text": "1" }
+      ]
+    },
+    {
+      "id": "sec_tag",
+      "name": "Tag",
+      "letter": "C",
+      "bars": [
+        { "id": "c1", "text": "|: 1" },
+        { "id": "c2", "text": "4" },
+        { "id": "c3", "text": "1" },
+        { "id": "c4", "text": "5 :|" }
+      ]
+    }
+  ],
+  "lyricSheet": {
+    "sections": [
+      {
+        "id": "lyr1",
+        "name": "Verse",
+        "letter": "B",
+        "lyrics": "This little light of mine\nI'm gonna let it shine\nThis little light of mine\nI'm gonna let it shine\nLet it shine, let it shine, let it shine",
+        "noLyrics": false,
+        "bars": []
+      },
+      {
+        "id": "lyr2",
+        "name": "Tag",
+        "letter": "C",
+        "lyrics": "Let it shine, let it shine, let it shine",
+        "noLyrics": false,
+        "bars": []
+      }
+    ]
+  }
+}
