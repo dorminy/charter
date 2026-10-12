@@ -1,0 +1,3850 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Nashville Chart Builder</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Neucha&family=Caveat:wght@400;500&display=swap"
+    />
+    <style>
+      :root {
+        --bg: #0f1115;
+        --panel: #171a21;
+        --panel-2: #1d222b;
+        --muted: #98a2b3;
+        --text: #f4f7fb;
+        --subtle: #c8d1dc;
+        --line: #2c3441;
+        --accent: #75a8ff;
+        --accent-2: #8ef0c0;
+        --danger: #ff7b7b;
+        --warning: #ffd26f;
+        --shadow: 0 12px 36px rgba(0, 0, 0, 0.28);
+        --font: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+          Helvetica, Arial, sans-serif;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        --print-bar-font-size: 1.2rem;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(180deg, #0d1016, #121722 34%, #0f1115 100%);
+        color: var(--text);
+        font-family: var(--font);
+      }
+
+      body {
+        padding: 24px;
+      }
+
+      .app {
+        max-width: 1520px;
+        margin: 0 auto;
+        display: grid;
+        gap: 18px;
+      }
+
+      .hero {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-end;
+      }
+
+      .hero h1 {
+        margin: 0;
+        font-size: clamp(1.8rem, 2vw + 1rem, 3rem);
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+      }
+
+      .hero p {
+        margin: 0.4rem 0 0;
+        color: var(--subtle);
+        max-width: 900px;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .btn,
+      .chip,
+      select,
+      input,
+      textarea {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--text);
+        border-radius: 12px;
+        font: inherit;
+      }
+
+      .btn,
+      .chip {
+        cursor: pointer;
+        padding: 10px 14px;
+        box-shadow: var(--shadow);
+        transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+        user-select: none;
+      }
+
+      .btn:hover,
+      .chip:hover {
+        transform: translateY(-1px);
+        border-color: #46536a;
+      }
+
+      .btn.primary {
+        background: linear-gradient(180deg, #2f67ff, #2554cf);
+        border-color: #2952c0;
+      }
+
+      .btn.secondary {
+        background: linear-gradient(180deg, #213147, #182638);
+      }
+
+      .btn.ghost {
+        background: rgba(255, 255, 255, 0.03);
+        box-shadow: none;
+      }
+
+      .btn.warn {
+        background: linear-gradient(180deg, #62480f, #4b390f);
+        border-color: #705513;
+        color: #ffe7aa;
+      }
+
+      .btn.danger {
+        background: linear-gradient(180deg, #6c2525, #541a1a);
+        border-color: #7e2828;
+        color: #ffd8d8;
+      }
+
+      .btn.small {
+        padding: 8px 10px;
+        font-size: 0.93rem;
+        border-radius: 10px;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        background: var(--panel-2);
+        box-shadow: none;
+      }
+
+      .grid {
+        display: grid;
+        gap: 18px;
+       grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+        align-items: start;
+      }
+
+      @media (max-width: 1120px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+        input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.setup-panel {
+  padding: 12px 16px;
+}
+
+.setup-panel h2 {
+  margin-bottom: 6px;
+}
+
+.setup-panel p.help {
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+      .panel {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.015)
+        );
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 18px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(8px);
+        min-width: 0;
+      }
+
+      .panel h2 {
+        margin: 0 0 8px;
+        font-size: 1.06rem;
+        letter-spacing: 0.02em;
+      }
+
+      .panel p.help {
+        margin: 0 0 14px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .fields {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(120px, 1fr));
+        gap: 10px;
+      }
+
+/* Tablet */
+@media (max-width: 900px) {
+  .fields {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Phone */
+@media (max-width: 600px) {
+  .fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Small phone (optional but nice) */
+@media (max-width: 420px) {
+  .fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+        
+        
+        
+      .fields .full {
+        grid-column: span 2;
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        font-size: 0.91rem;
+        color: var(--subtle);
+        min-width: 0;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px 12px;
+        outline: none;
+        min-width: 0;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(117, 168, 255, 0.18);
+      }
+
+      textarea {
+        min-height: 110px;
+        resize: vertical;
+        font-family: var(--font);
+      }
+
+      .checkbox-row,
+      .radio-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 14px;
+        align-items: center;
+        padding: 8px 0 4px;
+      }
+
+      .check,
+      .radio {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.94rem;
+        color: var(--text);
+        white-space: nowrap;
+      }
+
+      .check input,
+      .radio input {
+        width: auto;
+        accent-color: var(--accent);
+        box-shadow: none;
+      }
+
+      .helper-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .structure-tools {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .section-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 14px;
+        background: var(--panel);
+        display: grid;
+        gap: 12px;
+        min-width: 0;
+      }
+
+.section-head {
+  display: grid;
+  grid-template-columns:
+    minmax(140px, 1fr)  /* Name */
+    60px                /* Letter */
+    80px;               /* # Bars */
+  gap: 6px;
+  align-items: end;
+}
+
+/* Second row (buttons) spans full width */
+.section-head .section-buttons {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* Label formatting */
+.section-head label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Input tweaks */
+.section-head input[data-action="section-letter"] {
+  text-align: center;
+  font-weight: 600;
+}
+
+.section-head input[data-action="section-bars"] {
+  text-align: center;
+}
+
+/* Compact buttons (important for tablet) */
+.section-head .btn {
+  padding: 4px 6px;
+  font-size: 0.8rem;
+  border-radius: 8px;
+}
+
+      @media (max-width: 920px) {
+        .section-head {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      .tiny-note {
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+
+      .preview-head {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 0px !important;
+        padding-bottom: 2px !important;  
+      }
+
+      .preview-head .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 16px;
+        color: var(--subtle);
+        font-size: 0.96rem;
+      }
+
+.chart-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+
+  background: var(--panel);
+  padding-bottom: 8px;
+
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
+
+.chart-chips {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+       .chart-chips .chip {
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  border-radius: 8px;
+} 
+        
+      .preview-title {
+        font-weight: 700;
+        font-size: 1.4rem;
+        margin-bottom: 4px;
+      }
+
+      .live-chart {
+        border-top: 1px solid var(--line);
+        display: grid;
+        gap: 18px;
+        min-width: 0;
+        overflow-x: hidden;
+        width: 100%;
+        margin-top: 10px !important;  
+      }
+
+      .chart-section {
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        overflow: visible;
+        min-width: 0;
+      }
+
+      .chart-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 0 6px;
+        background: transparent;
+        border-bottom: none;
+      }
+
+      .chart-section-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        min-width: 0;
+      }
+
+      .section-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 28px;
+        height: 28px;
+        padding: 0 8px;
+        border-radius: 3px;
+        background: #20314f;
+        border: 1px solid #2e4773;
+        color: #cee1ff;
+        font-size: 0.85rem;
+        font-weight: 700;
+        flex: 0 0 auto;
+      }
+
+      .bars {
+        display: grid;
+        gap: 10px;
+        padding: 0;
+        min-width: 0;
+      }
+
+      .bar-row {
+        display: grid;
+        grid-template-columns: auto repeat(var(--bars-per-line, 4), minmax(0, 1fr));
+        gap: 20px;
+        align-items: center;
+        min-width: 0;
+      }
+
+      .bar-row.no-bar-numbers {
+        grid-template-columns: repeat(var(--bars-per-line, 4), minmax(0, 1fr));
+      }
+
+      /* ---- Lyric sheet screen ---- */
+      .lyric-only {
+        display: none;
+      }
+
+      body.view-lyrics .lyric-only {
+        display: block;
+      }
+
+      /* Chord-only controls disappear on the lyric screen */
+      body.view-lyrics .chord-only {
+        display: none !important;
+      }
+
+      .lyric-banner {
+        margin-bottom: 12px;
+        padding: 9px 12px;
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--accent);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      /* One multi-line lyric box per section, with a "No lyrics" checkbox
+         beside it. Ticking it collapses the box so only the title is left. */
+      .lyric-section {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        column-gap: 14px;
+        align-items: start;
+      }
+
+      .lyric-section > .chart-section-header {
+        grid-column: 1 / -1;
+        grid-row: 1;
+      }
+
+      .lyric-box {
+        grid-column: 1;
+        grid-row: 2;
+        box-sizing: border-box;
+        width: 100%;
+        min-height: 6.5rem;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        outline: none;
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text);
+        font: inherit;
+        font-size: 1rem;
+        line-height: 1.45;
+        white-space: pre-wrap;
+        overflow: hidden;
+        resize: none;
+      }
+
+      .lyric-box:focus {
+        border-color: var(--accent);
+        background: transparent;
+      }
+
+      .lyric-none-check {
+        grid-column: 2;
+        grid-row: 2;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding-top: 10px;
+        color: var(--muted);
+        font-size: 0.9rem;
+        white-space: nowrap;
+        cursor: pointer;
+      }
+
+      /* The plain-text copy only exists for printing */
+      .lyric-print {
+        display: none;
+      }
+
+      /* Collapsed: only the title (and the checkbox, to undo it) remain */
+      .lyric-section.no-lyrics > .chart-section-header {
+        grid-column: 1;
+      }
+
+      .lyric-section.no-lyrics .lyric-none-check {
+        grid-row: 1;
+        padding-top: 0;
+        align-self: center;
+      }
+
+      .lyric-section.no-lyrics .lyric-box {
+        display: none;
+      }
+
+      .bar-number {
+        font-family: var(--mono);
+        font-size: 0.75rem;
+        color: #b8c1cc;
+        opacity: 0.7;
+        text-align: right;
+        padding-right: 8px;
+        min-width: 20px;
+        user-select: none;
+      }
+
+      @media (max-width: 880px) {
+        .bar-row {
+          grid-template-columns: auto repeat(2, minmax(0, 1fr));
+        }
+
+        .bar-row.no-bar-numbers {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 580px) {
+        .bar-row {
+          grid-template-columns: auto 1fr;
+        }
+
+        .bar-row.no-bar-numbers {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .bar {
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        padding: 0;
+        min-height: auto;
+        min-width: 0;
+        position: relative;
+      }
+
+      /* ===== REPEAT SYMBOLS ===== */
+
+      .bar.repeat-start {
+        border-left: 4px solid #e8eef9;
+        padding-left: 12px;
+      }
+
+      .bar.repeat-end {
+        border-right: 4px solid #e8eef9;
+        padding-right: 12px;
+      }
+
+      .bar.repeat-start::before,
+      .bar.repeat-start::after,
+      .bar.repeat-end::before,
+      .bar.repeat-end::after {
+        content: "●";
+        position: absolute;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 10px;
+        line-height: 1;
+        color: #e8eef9;
+        background: none;
+        border: none;
+        pointer-events: none;
+      }
+
+      .bar.repeat-start::before {
+        left: 4px;
+        top: calc(50% - 10px);
+      }
+
+      .bar.repeat-start::after {
+        left: 4px;
+        top: calc(50% + 2px);
+      }
+
+      .bar.repeat-end::before {
+        right: 4px;
+        top: calc(50% - 10px);
+      }
+
+      .bar.repeat-end::after {
+        right: 4px;
+        top: calc(50% + 2px);
+      }
+
+      .bar-input {
+        min-width: 0;
+        min-height: 28px;
+        padding: 0 2px 2px;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 1.1rem;
+        line-height: 1.35;
+        text-align: center;
+        white-space: pre;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .bar-input:empty::before {
+        content: attr(data-placeholder);
+        color: var(--muted);
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      .bar-input:focus {
+        outline: 1px solid var(--accent);
+        outline-offset: 2px;
+        background: transparent;
+      }
+
+      .bar-input.split {
+        text-decoration-line: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 0.18em;
+        text-decoration-skip-ink: none;
+      }
+
+      /* Hold (◇), choke (▽) and tie (— = "still holding from the previous
+         bar") are shown as a single bold Unicode symbol centered ABOVE the
+         chord notation, rather than a shape drawn around it. The symbol's
+         size is independent of the chord text, so long notation like
+         "m7b5" never collides with it. A band is reserved at the top of
+         the bar so the symbol and the chord never overlap. The symbol uses
+         a plain sans-serif stack (not the handwriting chart font) so the
+         geometric glyphs render consistently. Tie shows the diamond alone
+         since its bar has no chord text. */
+      .bar.hold-marker,
+      .bar.choke-marker,
+      .bar.tie-hold {
+        padding-top: 1.05rem;
+      }
+
+      .bar.hold-marker .bar-input::after,
+      .bar.tie-hold .bar-input::after,
+      .bar.choke-marker .bar-input::after {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: Arial, Helvetica, "Segoe UI Symbol", sans-serif;
+        font-size: 1.05rem;
+        font-weight: 700;
+        line-height: 1;
+        color: var(--text);
+        pointer-events: none;
+      }
+
+      .bar.hold-marker .bar-input::after,
+      .bar.tie-hold .bar-input::after {
+        content: "◇";
+      }
+
+      .bar.choke-marker .bar-input::after {
+        content: "▽";
+      }
+
+      /* Tie bars are intentionally empty of chord text; don't show the
+         empty-bar placeholder dash next to the diamond. */
+      .bar.tie-hold .bar-input:empty::before {
+        content: none;
+      }
+
+     .bar.invalid .bar-input {
+  		outline: 1px solid var(--danger);
+  		outline-offset: 2px;
+  		background: rgba(255, 123, 123, 0.08);
+  		border-radius: 6px;
+	}
+
+	.bar.invalid::after {
+ 		content: attr(data-error);
+ 		display: block;
+		margin-top: 4px;
+  		font-size: 0.72rem;
+  		color: var(--danger);
+  		text-align: center;
+  		line-height: 1.15;
+	}
+   
+        
+        
+        
+        
+        
+      .notes-preview {
+        border-top: 1px dashed var(--line);
+        margin-top: 14px;
+        padding-top: 14px;
+      }
+
+      .notes-preview h3 {
+        margin: 0 0 6px;
+        font-size: 1rem;
+      }
+
+      .notes-preview pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        color: var(--subtle);
+        font-family: var(--font);
+        margin: 0;
+      }
+
+      .footer-note {
+        color: var(--muted);
+        font-size: 0.86rem;
+        margin-top: 4px;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      /* ===== Compact sidebar controls ===== */
+      .controls-col .panel {
+        padding: 12px;
+        border-radius: 18px;
+      }
+
+      .controls-col .panel h2 {
+        margin: 0 0 4px;
+        font-size: 1rem;
+        line-height: 1.1;
+      }
+
+      .controls-col .panel p.help {
+        margin: 0 0 10px;
+        font-size: 0.87rem;
+        line-height: 1.25;
+      }
+
+      .controls-col .fields {
+        gap: 8px;
+      }
+
+      .controls-col label {
+        gap: 3px;
+        font-size: 0.84rem;
+      }
+
+      .controls-col input:not([type="checkbox"]):not([type="radio"]),
+      .controls-col select,
+      .controls-col textarea {
+        padding: 6px 10px;
+        border-radius: 10px;
+        font-size: 0.92rem;
+      }
+
+      .controls-col input:not([type="checkbox"]):not([type="radio"]),
+      .controls-col select {
+        min-height: 34px;
+      }
+
+      .controls-col textarea {
+        min-height: 80px;
+      }
+
+      .controls-col .btn,
+      .controls-col .chip {
+        padding: 6px 10px;
+        border-radius: 10px;
+        font-size: 0.88rem;
+        line-height: 1.1;
+      }
+
+      .controls-col .btn.small {
+        padding: 5px 8px;
+        font-size: 0.82rem;
+        border-radius: 9px;
+      }
+
+      .controls-col .chip {
+        gap: 6px;
+        padding: 5px 8px;
+      }
+
+      .controls-col .helper-chips {
+        gap: 6px;
+        margin-top: 6px;
+      }
+
+      .controls-col .structure-tools {
+        gap: 6px;
+        margin-top: 10px;
+      }
+
+      .controls-col .checkbox-row,
+      .controls-col .radio-row {
+        gap: 6px 10px;
+        padding: 4px 0 2px;
+      }
+
+      .controls-col .check,
+      .controls-col .radio {
+        gap: 6px;
+        font-size: 0.86rem;
+      }
+
+      .controls-col .section-card {
+        padding: 10px;
+        gap: 8px;
+        border-radius: 14px;
+      }
+
+      .controls-col .section-head {
+        gap: 6px;
+      }
+
+      .controls-col .tiny-note,
+      .controls-col .footer-note {
+        font-size: 0.8rem;
+        line-height: 1.2;
+      }
+
+      @media print {
+        @page {
+          size: auto;
+          margin: 0.35in 0.4in 0.4in 0.4in;
+        }
+
+        html,
+        body {
+          height: 100%;
+        }
+
+        body {
+          background: #fff;
+          color: #000;
+          padding: 0;
+        }
+
+        * {
+          overflow: visible !important;
+        }
+
+ .chart-chips {
+  display: none !important;
+}         
+.hero,
+.controls-col,
+.chart-chips,        
+.setup-panel,          
+.preview-actions,    
+#loadJsonInput {
+  display: none !important;
+}
+          
+.chart-toolbar {
+  background: transparent !important;   /* ✅ removes black rectangle */
+  box-shadow: none !important;
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+  position: static !important;          /* ✅ prevents overlay issues */
+}
+
+          .grid {
+          display: block;
+        }
+
+        .panel {
+          border: none;
+          box-shadow: none;
+          padding: 0;
+          background: #fff;
+          width: 100%;
+        }
+
+        .preview-title {
+          margin-bottom: 1px;
+          line-height: 1.02;
+        }
+
+        .preview-head .meta {
+          gap: 6px 12px;
+          font-size: 0.84rem;
+          line-height: 1;
+        }
+
+        .live-chart.print-two-col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          column-gap: 6ch;
+          align-items: start;
+          position: relative;
+        }
+
+        .live-chart.print-two-col::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 50%;
+          width: 1px;
+          background: #000;
+          transform: translateX(-50%);
+          pointer-events: none;
+        }
+
+        .live-chart.print-one-col {
+          display: block;
+        }
+
+        .live-chart > div {
+          display: block;
+        }
+
+ .bar.invalid::after {
+    display: none !important;
+  }
+          
+  .bar.invalid .bar-input {
+    outline: none !important;
+    background: transparent !important;
+  }
+
+.preview-title {
+  font-size: 1.1rem !important;  /* smaller, tighter */
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 2px !important;
+}
+
+.preview-head .meta {
+  font-size: 0.78rem !important;  /* compact metadata */
+  gap: 6px 10px !important;
+  line-height: 1.05 !important;
+}
+        .chart-section {
+          break-inside: avoid;
+          page-break-inside: avoid;
+          margin: 0 0 0.5em 0;
+          padding: 0;
+        }
+
+        .chart-section:last-child {
+          margin-bottom: 0;
+        }
+
+        .chart-section-header {
+          padding: 0 0 2px;
+          margin: 0;
+        }
+
+        .chart-section-title {
+          gap: 5px;
+          line-height: 1;
+          color: #888 !important;
+          font-weight: 500;
+        }
+
+        .section-badge {
+          background: #fff !important;
+          color: #888 !important;
+          border-color: #aaa !important;
+          font-weight: 500;
+          min-width: 20px;
+          height: 20px;
+          padding: 0 5px;
+          font-size: 0.72rem;
+        }
+
+        .bars {
+          gap: 3px;
+          padding: 0;
+        }
+
+        .bar-row {
+          grid-template-columns: auto repeat(var(--bars-per-line, 4), minmax(0, 1fr)) !important;
+          column-gap: 1ch;
+          row-gap: 0;
+          align-items: stretch;
+          justify-content: start;
+          margin: 0;
+          break-inside: avoid;
+        }
+
+        .bar-row.no-bar-numbers {
+          grid-template-columns: repeat(var(--bars-per-line, 4), minmax(0, 1fr)) !important;
+        }
+
+        .bar-number {
+          font-size: 0.62rem;
+          min-width: 12px;
+          padding-right: 2px;
+          line-height: 1;
+        }
+
+        /* Lyric sheet: plain text in the same grid as the chord chart,
+           sized by the same fit search (capped lower than chords). */
+        .lyric-banner {
+          display: none !important;
+        }
+
+        .lyric-section {
+          display: block;
+        }
+
+        /* Print the plain-text copy, not the on-screen box or checkbox. A
+           section marked "No lyrics" prints as just its title. */
+        .lyric-box,
+        .lyric-none-check {
+          display: none !important;
+        }
+
+        .lyric-print {
+          display: block;
+          padding: 0 0.1em;
+          font-family: "Neucha", "Caveat", var(--mono) !important;
+          font-size: var(--print-bar-font-size, 1.35rem);
+          line-height: 1.25;
+          font-weight: 600;
+          white-space: pre-wrap;
+          overflow-wrap: break-word;
+          color: #000 !important;
+        }
+
+        .lyric-section.no-lyrics .lyric-print {
+          display: none;
+        }
+
+
+.bar {
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+           padding: 0;
+         min-height: 2.2em;
+  
+}
+
+.bar-input {
+  font-family: "Neucha", "Caveat", var(--mono) !important;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+
+  font-size: var(--print-bar-font-size, 1.35rem);
+  line-height: 1;
+  letter-spacing: 0;
+
+  text-align: center;
+  white-space: nowrap;
+
+  color: #000 !important;
+  font-weight: 600;
+}
+
+        .bar-input.split {
+          text-decoration-thickness: 1.5px;
+          text-underline-offset: 0.12em;
+        }
+
+        .bar-input:focus {
+          outline: none !important;
+        }
+
+        .bar.repeat-start {
+          border-left: 3px solid #000 !important;
+          padding-left: 9px;
+        }
+
+        .bar.repeat-end {
+          border-right: 3px solid #000 !important;
+          padding-right: 9px;
+        }
+
+        .bar.repeat-start::before,
+        .bar.repeat-start::after,
+        .bar.repeat-end::before,
+        .bar.repeat-end::after {
+          color: #000 !important;
+          font-size: 8px;
+        }
+
+        .bar.repeat-start::before {
+          left: 3px;
+          top: calc(50% - 8px);
+        }
+
+        .bar.repeat-start::after {
+          left: 3px;
+          top: calc(50% + 0px);
+        }
+
+        .bar.repeat-end::before {
+          right: 3px;
+          top: calc(50% - 8px);
+        }
+
+        .bar.repeat-end::after {
+          right: 3px;
+          top: calc(50% + 0px);
+        }
+
+        /* Hold / choke / tie symbol sits above the chord and scales with
+           the print font search; the reserved band above the chord scales
+           with it too so they never overlap. */
+        .bar.hold-marker,
+        .bar.choke-marker,
+        .bar.tie-hold {
+          padding-top: calc(var(--print-bar-font-size, 1.35rem) * 0.75);
+        }
+
+        .bar.hold-marker .bar-input::after,
+        .bar.tie-hold .bar-input::after,
+        .bar.choke-marker .bar-input::after {
+          font-size: calc(var(--print-bar-font-size, 1.35rem) * 0.72);
+          color: #000;
+        }
+
+        .notes-preview {
+          border-top: 1px dashed #000;
+          margin-top: 6px;
+          padding-top: 4px;
+        }
+
+        .notes-preview h3 {
+          margin: 0 0 2px;
+          font-size: 0.86rem;
+          line-height: 1;
+        }
+
+        .notes-preview pre {
+          font-size: 0.82rem;
+          line-height: 1.1;
+        }
+
+        .notes-preview pre,
+        .preview-head .meta,
+        .tiny-note,
+        .footer-note {
+          color: #000 !important;
+        }
+
+        .app {
+          max-width: none;
+        }
+      }
+      /* ===== Help Modal ===== */
+
+.help-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.help-modal.hidden {
+  display: none;
+}
+
+.help-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px);
+}
+
+.help-panel {
+  position: relative;
+  width: min(900px, 92vw);
+  max-height: 88vh;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.help-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.help-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.help-content {
+  overflow-y: auto;
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.help-content h3 {
+  margin: 6px 0 2px;
+  font-size: 1rem;
+}
+
+.help-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.help-table th,
+.help-table td {
+  border: 1px solid var(--line);
+  padding: 6px 8px;
+  text-align: left;
+}
+
+.help-table th {
+  background: rgba(255,255,255,0.04);
+}
+
+.help-content pre {
+  background: rgba(0,0,0,0.3);
+  padding: 8px;
+  border-radius: 8px;
+  margin: 0;
+}  
+        
+/* Compact numeric / short inputs */
+.compact-input {
+  max-width: 110px;
+}
+
+.compact-input.tiny {
+  max-width: 90px;
+}
+
+.compact-input.wide {
+  max-width: 120px;
+}        
+
+        .fields label > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}    
+        
+  #chordPad {
+  border-top: 1px solid var(--line);
+  padding-top: 6px;
+}
+
+#recentChords {
+  margin-top: 4px;
+}      
+        
+    </style>
+  </head>
+  <body>
+    <div class="app" id="app">
+      <div class="hero">
+        <div>
+          <h1 id="heroTitle">Nashville Chart Builder</h1>
+          <p id="heroText">
+            Build a clean Nashville-style session chart using Nashville numbers
+            or chord names and save/load JSON locally.
+          </p>
+        </div>
+        <div class="toolbar">
+          <button class="btn secondary" id="viewToggleBtn">Lyric Sheet →</button>
+          <button class="btn secondary" id="printBtn">Print</button>
+        </div>
+      </div>
+
+            <section class="panel setup-panel">
+            <h2>Setup</h2>
+         
+            <div class="fields" style="margin-top: 8px">
+              <label>
+                Title
+                <input id="title" type="text" placeholder="Song title" />
+              </label>
+
+              <label>
+                Composer
+                <input id="composer" type="text" placeholder="Writer / artist" />
+              </label>
+
+<label class="chord-only">
+  Key
+  <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+    
+
+<select id="songKey" class="compact-input tiny"></select>
+
+  </div>
+</label>
+
+              <label class="chord-only">
+                Time Signature
+                <input id="timeSig" class="compact-input tiny" type="text" placeholder="4/4" />
+              </label>
+
+              <label class="chord-only">
+                Tempo (BPM)
+                <input id="tempo" class="compact-input tiny"type="number" min="1" step="1" placeholder="e.g. 96" />
+              </label>
+
+              <label class="chord-only">
+                Bars per line
+                <select id="barsPerLine" class="compact-input tiny">
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4" selected>4</option>
+                  <option value="6">6</option>
+                  <option value="8">8</option>
+                </select>
+              </label>
+			  
+              <button class="btn small chord-only" id="toNnsBtn">Chords → NNS</button>
+              <button class="btn small chord-only" id="toChordsBtn">NNS → Chords</button>
+
+			 <label class="full">
+			  <div class="checkbox-row">
+				<label class="check">
+				  <input id="showSectionLetters" type="checkbox" checked />
+				  Section letters
+				</label>
+				<label class="check chord-only">
+				  <input id="showBarNumbers" type="checkbox" />
+				  Bar numbers
+				</label>
+			  </div>
+			</label>
+			
+			</div>
+          </section>     
+        
+        
+        
+        
+      <div class="grid">
+        <div class="controls-col">
+ 
+            
+
+
+          <section class="panel">
+            <h2>Structure</h2>
+            <p class="help chord-only">
+              Add sections, rename them, set how many bars each section should
+              have, and edit the chart on the right.
+            </p>
+            <p class="help lyric-only">
+              Add, rename, reorder or remove sections. Type each section's
+              lyrics in its box on the right.
+            </p>
+            <div id="sectionEditor"></div>
+            <div class="structure-tools">
+              <button class="btn danger" id="clearBtn">Clear</button>
+            </div>
+           </section>
+
+          <section class="panel chord-only">
+            <h2>Notes / Cues</h2>
+            <p class="help">
+              Optional session notes, lyric cues, arrangement hits, or reminders.
+            </p>
+            <textarea
+              id="notes"
+              placeholder="Session notes, cues, hits, arrangement notes, lyric cues…"
+            ></textarea>
+          </section>
+
+          <section class="panel">
+            <h2>Save / Load</h2>
+            <p class="help">
+              Everything stays in your browser until you download or load a JSON file.
+            </p>
+            <div class="structure-tools">
+              <button class="btn secondary" id="downloadBtn">Download JSON</button>
+              <button class="btn secondary" id="loadBtn">Load JSON</button>
+              <button class="btn warn" id="printBtnSide">Print Chart</button>
+            </div>
+            <input
+              id="loadJsonInput"
+              class="hidden"
+              type="file"
+              accept=".json,application/json"
+            />
+          </section>
+        </div>
+
+        <section class="panel">
+        <div class="lyric-only lyric-banner">
+          <strong>Lyric Sheet</strong> — a separate sheet to accompany the chord chart.
+          Its sections were copied from the chord chart; changes here don't change the
+          chord chart. Tick <b>No lyrics</b> beside a section (e.g. an instrumental) to
+          collapse it to just its title.
+        </div>
+        <div class="chart-toolbar"> 
+            <div class="preview-head">
+            <div>
+              <div class="preview-title" id="previewTitle">Untitled Chart</div>
+              <div class="meta" id="previewMeta"></div>
+            </div>
+
+  <div class="preview-actions toolbar">
+  <button class="btn secondary small" id="viewToggleBtnPreview">Lyric Sheet →</button>
+  <button class="btn secondary small" id="printBtnPreview">Print</button>
+  <button class="btn ghost small" id="helpBtn">Help</button>
+</div>          
+            
+            
+            </div>
+
+            <div class="helper-chips chart-chips chord-only" id="tokenChips">
+              <button class="chip" data-token="♭">♭</button>
+              <button class="chip" data-token="♯">♯</button>
+              <button class="chip" data-token="ø">ø</button>
+              <button class="chip" data-token="°">°</button>
+              <button class="chip" data-token="△">△</button>
+              <button class="chip" data-token="+">+</button>
+              <button class="chip" data-token="·">·</button>
+              <button class="chip" data-token="▽">▽</button>   <!-- Choke: shows as a ▽ above the chord -->
+			  <button class="chip" data-token="^">^</button>     <!-- Marcato -->
+  			  <button class="chip" data-token="◇">◇</button>   <!-- Hold: shows as a ◇ above the chord -->
+  			  <button class="chip" data-token="—">—</button>   <!-- Tie: shows a lone ◇, holds the previous bar's chord across the barline -->
+			  <button class="chip" data-token="❮">❮</button>     
+  			  <button class="chip" data-token="❯">❯</button>
+ 			  <button class="chip" data-token="↗">↗</button>     
+  			  <button class="chip" data-token="↘">↘</button>                      
+              <button class="chip" data-token=" |: ">|:</button>
+              <button class="chip" data-token=" :| ">:|</button>                              
+            </div>
+                <div id="chordPad" class="helper-chips chart-chips chord-only"></div>
+                <div id="recentChords" class="helper-chips chart-chips chord-only"></div>
+            </div>
+          <div class="live-chart" id="liveChart"></div>
+
+          <div class="notes-preview chord-only">
+            <h3>Notes / Cues</h3>
+            <pre id="notesPreview"></pre>
+          </div>
+        </section>
+      </div>
+    </div>
+
+<div id="helpModal" class="help-modal hidden" role="dialog" aria-modal="true">
+  <div class="help-backdrop"></div>
+
+  <div class="help-panel">
+    <div class="help-header">
+      <h2>Chart Builder Help</h2>
+      <button class="btn ghost small" id="closeHelpBtn">✕</button>
+    </div>
+
+    <div class="help-content">
+<h3>Basics</h3>
+<p>
+  This tool creates session-ready Nashville-style charts using either Nashville Numbers (NNS) or chord names.
+  Mode is detected automatically based on what you type.
+</p>
+
+<h3>Core Rule</h3>
+<p>
+  Each bar represents one full measure (typically 4 beats).
+</p>
+
+<p><strong>Single chord = full bar unless specified otherwise.</strong></p>
+
+<h3>Beat Notation (Dots)</h3>
+<p>
+  Beats are defined using dots (<code>·</code>) directly after a chord symbol.
+</p>
+
+<table class="help-table">
+  <tr><th>Input</th><th>Beats</th></tr>
+  <tr><td>C</td><td>4 beats (full bar)</td></tr>
+  <tr><td>C·</td><td>1 beat</td></tr>
+  <tr><td>C··</td><td>2 beats</td></tr>
+  <tr><td>C···</td><td>3 beats</td></tr>
+</table>
+
+<p>
+  Dots explicitly define how long a chord lasts.
+  More dots = more beats.
+</p>
+
+<h3>Multiple Chords in a Bar</h3>
+
+<h4>Equal Split (no dots)</h4>
+<pre>C D</pre>
+<p>
+  If no dots are provided, the bar splits evenly between all chords.
+</p>
+
+<table class="help-table">
+  <tr><th>Input</th><th>Meaning</th></tr>
+  <tr><td>C D</td><td>2 + 2 beats</td></tr>
+  <tr><td>C D E F</td><td>1 + 1 + 1 + 1</td></tr>
+</table>
+
+<h4>Explicit Timing (using dots)</h4>
+<pre>
+C·· D··     → 2 + 2  
+C··· D·     → 3 + 1  
+C· D···     → 1 + 3  
+C· D· E· F· → 1 + 1 + 1 + 1  
+</pre>
+
+<p>
+  When dots are used, they override the equal split rule.
+</p>
+
+<h3>How It Works</h3>
+<ul>
+  <li>Each bar must match the current time signature</li>
+  <li>No dots → chords divide the bar evenly when possible</li>
+  <li>Dots → explicit duration control</li>
+  <li>Single chord → fills the full bar</li>
+</ul>
+
+<h3>Examples in Different Meters</h3>
+<table class="help-table">
+  <tr><th>Time</th><th>Input</th><th>Meaning</th></tr>
+  <tr><td>3/4</td><td>C·· D·</td><td>2 + 1 quarter notes</td></tr>
+  <tr><td>5/8</td><td>C··· D··</td><td>3 + 2 eighth notes</td></tr>
+  <tr><td>6/8</td><td>C··· D···</td><td>3 + 3 eighth notes</td></tr>
+  <tr><td>12/8</td><td>C··· D··· E··· F···</td><td>3 + 3 + 3 + 3 eighth notes</td></tr>
+</table>
+        
+<h3>Tips</h3>
+<ul>
+  <li>Use dots only when timing needs to be clear</li>
+  <li>Keep simple bars clean (e.g., just <code>C</code>)</li>
+  <li>Use helper chips to quickly insert dot symbols</li>
+  <li>Think in feel, not math</li>
+</ul>
+
+<h3>Repeats</h3>
+<pre>|: 1 4 :|</pre>
+<ul>
+  <li><code>|:</code> = repeat start</li>
+  <li><code>:|</code> = repeat end</li>
+</ul>
+
+<h3>NNS vs Chords</h3>
+<ul>
+  <li>Numbers (1–7) → Nashville mode</li>
+  <li>Letters (A–G) → chord mode</li>
+</ul>
+
+<h3>Conversion</h3>
+<ul>
+  <li><strong>NNS → Chords</strong></li>
+  <li><strong>Chords → NNS</strong></li>
+</ul>
+
+<h3>Key Behavior</h3>
+<ul>
+  <li>NNS mode → key is editable</li>
+  <li>Chord mode → key is locked</li>
+</ul>
+
+<h3>Navigation</h3>
+<ul>
+  <li>Tab / Enter → next bar</li>
+  <li>Shift + Tab → previous</li>
+  <li>Arrow keys → move</li>
+</ul>
+
+<h3>Tips</h3>
+<ul>
+  <li>Use one chord per bar unless timing changes</li>
+  <li>Use underscores only when needed</li>
+  <li>Keep charts clean and easy to scan</li>
+  <li>Think in feel, not math</li>
+</ul>
+
+<h3>Printing</h3>
+<ul>
+  <li>Auto column layout</li>
+  <li>Chord symbols scale to fill bars</li>
+</ul>
+
+<h3>Saving</h3>
+<ul>
+  <li>Download JSON</li>
+  <li>Load JSON anytime</li>
+</ul>
+
+<h3>Lyric Sheet</h3>
+<ul>
+  <li>Click <b>Lyric Sheet →</b> (top right) to open a separate lyric sheet to accompany the chord chart. <b>← Chord Chart</b> takes you back.</li>
+  <li>The first time you open it, it copies the chord chart's sections (names and letters). After that it is independent: rename, add, duplicate, move or remove sections without touching the chord chart — for example, add a "Verse 2".</li>
+  <li>Each section has one multi-line box. Type or paste the lyrics, one line per row.</li>
+  <li>Tick <b>No lyrics</b> beside a section (an instrumental, say) to collapse its box so only the section title shows. Untick it to bring the box back — the words are kept.</li>
+  <li><b>Print Lyric Sheet</b> prints the lyric sheet on its own, scaled to fit the page. If it won't fit on one page it is printed in two columns, filling the left column first.</li>
+  <li><b>Restart from chord chart</b> clears all lyrics and re-copies the chord chart's current sections.</li>
+  <li>Both sheets are saved together in the one JSON file.</li>
+</ul>
+
+<h3>Hold, Choke &amp; Ties</h3>
+<ul>
+  <li>Click the ◇ chip on a chord to mark it "hold" — a ◇ symbol is shown above the chord, telling the player to let it ring.</li>
+  <li>Click the ▽ chip on a chord to mark it "choke" — a ▽ symbol is shown above the chord, telling the player to cut it off short.</li>
+  <li>To hold a chord longer than one bar: mark the chord ◇ in its own bar, then click the — (tie) chip alone in each following bar it's still held. Each of those bars shows a ◇ with no chord under it — still ringing.</li>
+  <li>Chain — across as many bars as needed — there's no limit.</li>
+  <li>Example: <code>1◇</code> then <code>—</code> then <code>—</code> = one chord held for 3 full bars, shown as a chord with a ◇ above it, followed by two bars with just a ◇.</li>
+  <li>Partial-bar ties still work with dots, e.g. <code>—·· 4··</code> = tied for 2 beats, then a new chord for 2 beats.</li>
+</ul>
+
+<h3>Quick Summary</h3>
+<ul>
+  <li>C = full bar</li>
+  <li>C D = split bar (2 beats each)</li>
+  <li>C··· D = 3 + 1</li>
+  <li>Dots = explicit duration</li>
+</ul>
+ 
+    </div>
+  </div>
+</div>      
+      
+      
+    <script>
+function parseTimeSignature(timeSig) {
+  const raw = String(timeSig || "4/4").trim();
+  const m = raw.match(/^(\d+)\s*\/\s*(\d+)$/);
+
+  if (!m) {
+    return {
+      text: "4/4",
+      beatsPerBar: 4,
+      beatUnit: 4,
+      barUnits: 4,
+      compound: false,
+      beatLabel: "quarter-note units"
+    };
+  }
+
+  const beatsPerBar = Number(m[1]);
+  const beatUnit = Number(m[2]);
+
+  const compound =
+    beatUnit === 8 &&
+    beatsPerBar >= 6 &&
+    beatsPerBar % 3 === 0;
+
+  return {
+    text: `${beatsPerBar}/${beatUnit}`,
+    beatsPerBar,
+    beatUnit,
+    barUnits: beatsPerBar,
+    compound,
+    beatLabel: beatUnit === 8 ? "eighth-note units" : "quarter-note units"
+  };
+}
+
+function splitBarTokens(text) {
+  return String(text || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .filter((t) => t !== "|:" && t !== ":|");
+}
+
+function getExplicitUnitsFromToken(token) {
+  const raw = String(token || "");
+  const dotCount = (raw.match(/·/g) || []).length;
+  if (dotCount > 0) return dotCount;
+
+  // Optional compatibility with old underscore notation shown in Help
+  const underscoreCount = (raw.match(/_/g) || []).length;
+  if (underscoreCount > 0) return underscoreCount + 1;
+
+  return null;
+}
+
+function stripDurationMarkers(token) {
+  return String(token || "")
+    .replace(/·+/g, "")
+    .replace(/_+/g, "");
+}
+
+function parseBarRhythm(text, meter) {
+  const tokens = splitBarTokens(stripRepeatTokens(text));
+  if (!tokens.length) {
+    return {
+      parts: [],
+      totalUnits: 0,
+      valid: true,
+      reason: "empty"
+    };
+  }
+
+  const explicit = tokens.map((token) => ({
+    raw: token,
+    display: stripDurationMarkers(token),
+    explicitUnits: getExplicitUnitsFromToken(token)
+  }));
+
+  const explicitTotal = explicit.reduce(
+    (sum, p) => sum + (p.explicitUnits || 0),
+    0
+  );
+
+  const explicitCount = explicit.filter((p) => p.explicitUnits != null).length;
+  const missingCount = explicit.filter((p) => p.explicitUnits == null).length;
+
+  // Case 1: no explicit durations -> equal split only if divisible
+  if (explicitCount === 0) {
+    if (meter.barUnits % tokens.length !== 0) {
+      return {
+        parts: explicit.map((p) => ({ ...p, units: null })),
+        totalUnits: null,
+        valid: false,
+        reason: `Cannot evenly split ${meter.text} across ${tokens.length} chord(s)`
+      };
+    }
+
+    const each = meter.barUnits / tokens.length;
+    const parts = explicit.map((p) => ({ ...p, units: each }));
+    return {
+      parts,
+      totalUnits: meter.barUnits,
+      valid: true,
+      reason: ""
+    };
+  }
+
+  // Case 2: some explicit durations -> remaining units distributed if possible
+  const remaining = meter.barUnits - explicitTotal;
+
+  if (remaining < 0) {
+    return {
+      parts: explicit.map((p) => ({ ...p, units: p.explicitUnits })),
+      totalUnits: explicitTotal,
+      valid: false,
+      reason: `Bar exceeds ${meter.barUnits} unit(s)`
+    };
+  }
+
+  if (missingCount === 0) {
+    return {
+      parts: explicit.map((p) => ({ ...p, units: p.explicitUnits })),
+      totalUnits: explicitTotal,
+      valid: explicitTotal === meter.barUnits,
+      reason:
+        explicitTotal === meter.barUnits
+          ? ""
+          : `Bar totals ${explicitTotal} of ${meter.barUnits} unit(s)`
+    };
+  }
+
+  if (remaining % missingCount !== 0) {
+    return {
+      parts: explicit.map((p) => ({
+        ...p,
+        units: p.explicitUnits
+      })),
+      totalUnits: explicitTotal,
+      valid: false,
+      reason: `Remaining ${remaining} unit(s) cannot be evenly distributed across ${missingCount} chord(s)`
+    };
+  }
+
+  const fill = remaining / missingCount;
+  const parts = explicit.map((p) => ({
+    ...p,
+    units: p.explicitUnits == null ? fill : p.explicitUnits
+  }));
+
+  const totalUnits = parts.reduce((sum, p) => sum + p.units, 0);
+  return {
+    parts,
+    totalUnits,
+    valid: totalUnits === meter.barUnits,
+    reason:
+      totalUnits === meter.barUnits
+        ? ""
+        : `Bar totals ${totalUnits} of ${meter.barUnits} unit(s)`
+  };
+}
+
+function barHasMultipleParts(text, meter) {
+  const parsed = parseBarRhythm(text, meter);
+  return parsed.parts.length > 1;
+}
+
+// A bar whose only content is the tie glyph (— , optionally with duration
+// dots, e.g. "—··") means "keep holding the chord from the previous bar" —
+// no new chord is being struck. Used to render it as a sustained line
+// instead of a literal dash character.
+function isFullBarTieToken(text) {
+  const tokens = splitBarTokens(stripRepeatTokens(text));
+  if (tokens.length !== 1) return false;
+  return stripDurationMarkers(tokens[0]) === "—";
+}
+
+// Hold (◇) and choke (▽) are shown as a symbol above the chord rather than
+// shown as literal characters — these just detect presence so the render
+// code can toggle the right CSS classes.
+function barHasHoldMarker(text) {
+  return String(text || "").includes("◇");
+}
+
+function barHasChokeMarker(text) {
+  return String(text || "").includes("▽");
+}
+        
+const helpModal = document.getElementById("helpModal");
+const helpBtn = document.getElementById("helpBtn");
+const closeHelpBtn = document.getElementById("closeHelpBtn");
+
+function openHelp() {
+  helpModal.classList.remove("hidden");
+}
+
+function closeHelp() {
+  helpModal.classList.add("hidden");
+}
+
+helpBtn.addEventListener("click", openHelp);
+closeHelpBtn.addEventListener("click", closeHelp);
+
+// click backdrop to close
+helpModal.querySelector(".help-backdrop").addEventListener("click", closeHelp);
+
+// ESC key
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    closeHelp();
+  }
+});
+
+function getCurrentMeter() {
+  return parseTimeSignature(state.meta.timeSig || "4/4");
+}
+        
+        
+        
+// keyboard shortcut: ?
+document.addEventListener("keydown", (e) => {
+  if (e.key === "?" && !e.target.closest("input, textarea, [contenteditable]")) {
+    e.preventDefault();
+    openHelp();
+  }
+}); 
+        
+      const COMMON_SECTION_NAMES = [
+        "Intro",
+        "Verse",
+        "Pre-Chorus",
+        "Chorus",
+        "Post-Chorus",
+        "Turnaround",
+        "Refrain",
+        "Tag",
+        "Bridge",
+        "Solo",
+        "Instrumental",
+        "Breakdown",
+        "Interlude",
+        "Build",
+        "Vamp",
+        "Modulation",
+        "Outro",
+        "Ending"
+      ];
+
+      const CHROMATIC_SHARPS = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"];
+      const CHROMATIC_FLATS = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"];
+        const SHARP_KEYS = [
+          "C", "G", "D", "A", "E", "B", "F♯", "C♯",
+          "Am", "Em", "Bm", "F♯m", "C♯m", "G♯m", "D♯m", "A♯m"
+        ];
+
+        const FLAT_KEYS = [
+          "F", "B♭", "E♭", "A♭", "D♭", "G♭", "C♭",
+          "Dm", "Gm", "Cm", "Fm", "B♭m", "E♭m", "A♭m"
+        ];
+      const NOTE_INDEX = {
+        "C": 0, "B#": 0,
+        "C#": 1, "Db": 1, "C♯": 1, "D♭": 1,
+        "D": 2,
+        "D#": 3, "Eb": 3, "D♯": 3, "E♭": 3,
+        "E": 4, "Fb": 4, "F♭": 4,
+        "F": 5, "E#": 5, "E♯": 5,
+        "F#": 6, "Gb": 6, "F♯": 6, "G♭": 6,
+        "G": 7,
+        "G#": 8, "Ab": 8, "G♯": 8, "A♭": 8,
+        "A": 9,
+        "A#": 10, "Bb": 10, "A♯": 10, "B♭": 10,
+        "B": 11, "Cb": 11, "C♭": 11
+      };
+
+      const FLAT_KEYS_MAJOR = new Set([
+        "F", "Bb", "Eb", "Ab", "Db", "Gb", "Cb",
+        "B♭", "E♭", "A♭", "D♭", "G♭", "C♭"
+      ]);
+
+      const FLAT_KEYS_MINOR = new Set([
+        "D", "G", "C", "F", "Bb", "Eb", "Ab",
+        "B♭", "E♭", "A♭"
+      ]);
+
+      const MAJOR_DEGREE_TO_INTERVAL = {
+        "1": 0,
+        "2": 2,
+        "3": 4,
+        "4": 5,
+        "5": 7,
+        "6": 9,
+        "7": 11
+      };
+
+      const MINOR_DEGREE_TO_INTERVAL = {
+        "1": 0,
+        "2": 2,
+        "3": 3,
+        "4": 5,
+        "5": 7,
+        "6": 8,
+        "7": 10
+      };
+
+      const state = {
+        meta: {
+          title: "",
+          composer: "",
+          key: "",
+          timeSig: "",
+          tempo: "",
+          barsPerLine: 4,
+          showSectionLetters: true,
+          showBarNumbers: false,
+        },
+        notes: "",
+        // The chord chart and the lyric sheet are two separate documents.
+        // `state.sections` always means the sheet currently on screen, so the
+        // structure editors etc. work on either one unchanged.
+        chartSections: [],
+        // { sections: [{ id, name, letter, lyrics, noLyrics }] } — created on
+        // first open. One multi-line text per section, not one per bar.
+        lyricSheet: null,
+        view: "chart" // "chart" | "lyrics"
+      };
+
+      Object.defineProperty(state, "sections", {
+        enumerable: false,
+        configurable: true,
+        get() {
+          return this.view === "lyrics" && this.lyricSheet
+            ? this.lyricSheet.sections
+            : this.chartSections;
+        },
+        set(value) {
+          if (this.view === "lyrics" && this.lyricSheet) this.lyricSheet.sections = value;
+          else this.chartSections = value;
+        }
+      });
+
+      // What gets saved: both sheets, whichever one is on screen.
+      Object.defineProperty(state, "toJSON", {
+        enumerable: false,
+        value() {
+          return {
+            meta: { ...this.meta },
+            notes: this.notes,
+            sections: this.chartSections,
+            lyricSheet: this.lyricSheet
+          };
+        }
+      });
+
+      const els = {
+        title: document.getElementById("title"),
+        composer: document.getElementById("composer"),
+        songKey: document.getElementById("songKey"),
+        timeSig: document.getElementById("timeSig"),
+        tempo: document.getElementById("tempo"),
+        barsPerLine: document.getElementById("barsPerLine"),
+        showSectionLetters: document.getElementById("showSectionLetters"),
+        showBarNumbers: document.getElementById("showBarNumbers"),
+        notes: document.getElementById("notes"),
+        sectionEditor: document.getElementById("sectionEditor"),
+        liveChart: document.getElementById("liveChart"),
+        previewTitle: document.getElementById("previewTitle"),
+        previewMeta: document.getElementById("previewMeta"),
+        notesPreview: document.getElementById("notesPreview"),
+        loadJsonInput: document.getElementById("loadJsonInput"),
+        tokenChips: document.getElementById("tokenChips"),
+      };
+
+      let lastFocusedBar = null;
+
+      function uid() {
+        return Math.random().toString(36).slice(2, 10);
+      }
+
+      function escapeHtml(str) {
+        return String(str ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+// ===== CHORD PAD MODULE =====
+
+let recentChordSet = new Set();
+
+// Nashville major diatonic degrees
+const DEGREE_QUALITIES = ["", "m", "m", "", "", "m", "°"];
+
+// Build diatonic chords from key
+function buildChordPadChords() {
+  const keyInfo = parseKeySignature(state.meta.key || "C");
+
+  const chords = [];
+
+  // Major keys: I ii iii IV V vi vii°. Minor keys (degrees still counted
+  // against the major scale): 1m 2° ♭3 4m 5m ♭6 ♭7.
+  const steps = keyInfo.mode === "minor"
+    ? [["1", 0, "m"], ["2", 0, "°"], ["3", -1, ""], ["4", 0, "m"], ["5", 0, "m"], ["6", -1, ""], ["7", -1, ""]]
+    : [["1", 0, ""], ["2", 0, "m"], ["3", 0, "m"], ["4", 0, ""], ["5", 0, ""], ["6", 0, "m"], ["7", 0, "°"]];
+
+  steps.forEach(([degree, offset, quality]) => {
+    chords.push(spellNnsDegree(degree, offset, keyInfo) + quality);
+  });
+
+  return chords;
+}
+
+// Render chord pad
+function renderChordPad() {
+  const container = document.getElementById("chordPad");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const chords = buildChordPadChords();
+
+  chords.forEach(chord => {
+    const btn = document.createElement("button");
+    btn.className = "chip";
+    btn.textContent = chord;
+
+    btn.addEventListener("click", () => {
+      insertTokenIntoFocusedBar(chord + " ");
+      addRecentChord(chord);
+    });
+
+    container.appendChild(btn);
+  });
+}
+
+// ===== RECENT CHORDS =====
+
+function addRecentChord(chord) {
+  recentChordSet.delete(chord); // move to front
+  recentChordSet.add(chord);
+
+  // limit size
+  if (recentChordSet.size > 12) {
+    const first = recentChordSet.values().next().value;
+    recentChordSet.delete(first);
+  }
+
+  renderRecentChords();
+}
+
+function renderRecentChords() {
+  const container = document.getElementById("recentChords");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const label = document.createElement("span");
+  label.textContent = "Recent:";
+  label.style.opacity = "0.7";
+  label.style.marginRight = "6px";
+  container.appendChild(label);
+
+  Array.from(recentChordSet).reverse().forEach(chord => {
+    const btn = document.createElement("button");
+    btn.className = "chip";
+    btn.textContent = chord;
+
+    btn.addEventListener("click", () => {
+      insertTokenIntoFocusedBar(chord + " ");
+    });
+
+    container.appendChild(btn);
+  });
+}        
+        
+        
+        
+function detectNotationMode() {
+  for (const section of state.sections) {
+    for (const bar of section.bars || []) {
+      const text = stripRepeatTokens(bar.text || "");
+
+      if (!text) continue;
+
+      const tokens = text.split(/\s+/);
+
+      for (const token of tokens) {
+        // NNS degree, optionally flat/sharp ("b7", "♭3", "#4") → NNS mode.
+        // Checked first so a lowercase "b" flat is never mistaken for the
+        // chord B.
+        if (/^[#b♯♭]?[1-7]/.test(token)) {
+          return "numbers";
+        }
+
+        // Chord letters are uppercase A–G → chord mode
+        if (/^[A-G]/.test(token)) {
+          return "letters";
+        }
+      }
+    }
+  }
+
+  return "numbers"; // default when empty
+}
+
+        
+ function updateKeyFieldState() {
+  const mode = detectNotationMode();
+  const isNns = mode === "numbers";
+
+  els.songKey.disabled = !isNns;
+
+  if (!isNns) {
+    els.songKey.title = "Key is locked when chart is in chord mode";
+  } else {
+    els.songKey.title = "";
+  }
+}
+        
+function getDiatonicChords(key) {
+  return {
+    major: ["1", "2m", "3m", "4", "5", "6m", "7°"]
+  };
+}
+
+function populateKeyDropdown() {
+  const select = els.songKey;
+
+  // Always offer every key (the list used to depend on a Sharps/Flats
+  // setting, which is gone: chords are spelled from the key itself).
+  const majorKeys = [
+    "C", "G", "D", "A", "E", "B", "F♯", "C♯",
+    "F", "B♭", "E♭", "A♭", "D♭", "G♭", "C♭"
+  ];
+  const minorKeys = [
+    "Am", "Em", "Bm", "F♯m", "C♯m", "G♯m", "D♯m", "A♯m",
+    "Dm", "Gm", "Cm", "Fm", "B♭m", "E♭m", "A♭m"
+  ];
+  const allKeys = [...majorKeys, ...minorKeys];
+
+  // Keep the current key; if it's spelled differently (e.g. "Gb", "D#m"),
+  // map it to the same key (same tonic pitch + mode) instead of resetting.
+  let selected = state.meta.key;
+  if (!allKeys.includes(selected)) {
+    const parsed = parseKeySignature(selected || "C");
+    const match = allKeys.find((k) => {
+      const p = parseKeySignature(k);
+      return p.tonicIndex === parsed.tonicIndex && p.mode === parsed.mode;
+    });
+    selected = selected ? (match || "C") : "C";
+  }
+  state.meta.key = selected;
+
+  select.innerHTML = "";
+
+  const buildGroup = (label, keys) => {
+    const group = document.createElement("optgroup");
+    group.label = label;
+    keys.forEach((k) => {
+      const opt = document.createElement("option");
+      opt.value = k;
+      opt.textContent = k;
+      group.appendChild(opt);
+    });
+    return group;
+  };
+
+  select.appendChild(buildGroup("Major", majorKeys));
+  select.appendChild(buildGroup("Minor", minorKeys));
+  select.value = selected;
+}
+      
+        
+        
+        function inchesToPx(inches) {
+        return inches * 96;
+      }
+
+      function getPrintableHeightPx() {
+        const pageHeightIn = 11; // US Letter
+        const topMarginIn = 0.35;
+        const bottomMarginIn = 0.4;
+        return inchesToPx(pageHeightIn - topMarginIn - bottomMarginIn);
+      }
+
+      function getPrintableWidthPx() {
+        const pageWidthIn = 8.5; // US Letter
+        const leftMarginIn = 0.4;
+        const rightMarginIn = 0.4;
+        return inchesToPx(pageWidthIn - leftMarginIn - rightMarginIn);
+      }
+
+      function nextSectionLetter(index) {
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        if (index < letters.length) return letters[index];
+        const first = Math.floor(index / letters.length) - 1;
+        const second = index % letters.length;
+        return letters[first] + letters[second];
+      }
+
+      function relabelSections() {
+        state.sections.forEach((section, index) => {
+          section.letter = nextSectionLetter(index);
+        });
+      }
+
+      function normalizeBar(bar) {
+        if (typeof bar.text === "string") return;
+
+        if (Array.isArray(bar.beats)) {
+          bar.text = bar.beats.filter(Boolean).join(" ").trim();
+          delete bar.beats;
+          return;
+        }
+
+        bar.text = "";
+      }
+
+      function createBar() {
+        return { id: uid(), text: "" };
+      }
+
+      function createSection(index = state.sections.length) {
+        return {
+          id: uid(),
+          name: COMMON_SECTION_NAMES[index] || `Section ${index + 1}`,
+          letter: nextSectionLetter(index),
+          bars: Array.from({ length: 4 }, () => createBar())
+        };
+      }
+
+      function syncSectionBarCounts() {
+        if (state.view === "lyrics") state.sections.forEach(normalizeLyricSection);
+        state.sections.forEach((section) => {
+          if (!Array.isArray(section.bars)) section.bars = [createBar()];
+          section.bars.forEach(normalizeBar);
+        });
+      }
+
+      function stripRepeatTokens(text) {
+        return String(text || "")
+          .replace(/\|:/g, "")
+          .replace(/:\|/g, "")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function stripRepeatTokensForEditing(text) {
+        return String(text || "")
+          .replace(/\|:/g, "")
+          .replace(/:\|/g, "");
+      }
+
+      // Like stripRepeatTokensForEditing, but also hides the hold (◇),
+      // choke (▽), and tie (—) marker characters from the editable/printed
+      // text — they're shown as a symbol above the chord via CSS
+      // instead of shown as literal characters. Only ever used for what's
+      // DISPLAYED; the raw marker characters are still stored in the bar's
+      // text and must never be stripped from storage (see the blur handler,
+      // which intentionally keeps using the narrower function above).
+      function stripMarkersForDisplay(text) {
+        return stripRepeatTokensForEditing(text)
+          .replace(/◇/g, "")
+          .replace(/▽/g, "")
+          .replace(/—/g, "");
+      }
+
+//      function tokenCount(text) {
+//        return stripRepeatTokens(text).split(/\s+/).filter(Boolean).length;
+//      }
+
+      function chunkArray(arr, size) {
+        const out = [];
+        for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+        return out;
+      }
+
+      function normalizeAccidentals(str) {
+        return String(str || "")
+          .replace(/♭/g, "b")
+          .replace(/♯/g, "#")
+          .trim();
+      }
+
+      function toUnicodeAccidentals(str) {
+        return String(str || "")
+          .replace(/b/g, "♭")
+          .replace(/#/g, "♯");
+      }
+
+      function canonicalNoteName(str) {
+        const s = normalizeAccidentals(str);
+        const m = s.match(/^([A-Ga-g])(𝄪|𝄫|[#b]?)/);
+        if (!m) return null;
+        return m[1].toUpperCase() + (m[2] || "");
+      }
+
+      // Computed from the letter + accidentals (rather than a lookup table)
+      // so any spelling resolves, including double sharps/flats that key-aware
+      // spelling can produce in rare keys (e.g. F𝄪 as the 7 of G♯).
+      function noteNameToIndex(note) {
+        if (!note) return null;
+        const canonical = canonicalNoteName(note);
+        if (!canonical) return null;
+        const base = SPELLING_LETTER_PC[SPELLING_LETTERS.indexOf(canonical[0])];
+        const acc = canonical.slice(1);
+        const shift =
+          acc === "#" ? 1 : acc === "b" ? -1 : acc === "𝄪" ? 2 : acc === "𝄫" ? -2 : 0;
+        return (((base + shift) % 12) + 12) % 12;
+      }
+
+      function parseKeySignature(rawKey) {
+        const raw = normalizeAccidentals(rawKey || "C");
+        const m = raw.match(/^([A-Ga-g])([#b]?)(?:\s*(m|min|minor|M|maj|major))?$/);
+
+        if (!m) {
+          return {
+            tonic: "C",
+            tonicIndex: 0,
+            mode: "major",
+            preferFlats: false
+          };
+        }
+
+        const tonicAscii = m[1].toUpperCase() + (m[2] || "");
+        const mode = m[3] && /^m(in|inor)?$/.test(m[3]) ? "minor" : "major";
+        const tonicDisplay = tonicAscii.replace(/b/g, "♭").replace(/#/g, "♯");
+        const tonicIndex = noteNameToIndex(tonicAscii);
+
+        const preferFlats =
+          mode === "major"
+            ? FLAT_KEYS_MAJOR.has(tonicAscii) || FLAT_KEYS_MAJOR.has(tonicDisplay)
+            : FLAT_KEYS_MINOR.has(tonicAscii) || FLAT_KEYS_MINOR.has(tonicDisplay);
+
+        return {
+          tonic: tonicDisplay,
+          tonicIndex: tonicIndex == null ? 0 : tonicIndex,
+          mode,
+          preferFlats
+        };
+      }
+
+      // Fix 2: NNS degrees are always read against the MAJOR scale of the
+      // key's tonic, in major and minor keys alike (so in a minor key the
+      // minor third is "♭3", the minor sixth "♭6", the minor seventh "♭7").
+      // This is what intervalToNns() already writes, so the two conversion
+      // directions now agree and round-trip. `mode` is kept in the signature
+      // for existing callers but no longer changes the interval.
+      function degreeToInterval(degree, mode) {
+        return MAJOR_DEGREE_TO_INTERVAL[degree];
+      }
+
+      // Fix 1: spell a scale degree using the key's own letter names (tonic
+      // letter + (degree - 1) steps), then add whatever accidental reaches
+      // the target pitch. This gives B♭ (not A♯) as the 4 in F, E♯ (not F)
+      // as the 7 in F♯, etc.
+      const SPELLING_LETTERS = ["C", "D", "E", "F", "G", "A", "B"];
+      const SPELLING_LETTER_PC = [0, 2, 4, 5, 7, 9, 11];
+
+      function spellNnsDegree(degree, accidentalOffset, keyInfo) {
+        const tonicLetterIndex = SPELLING_LETTERS.indexOf(String(keyInfo.tonic)[0]);
+        const letterIndex =
+          ((tonicLetterIndex < 0 ? 0 : tonicLetterIndex) + (Number(degree) - 1)) % 7;
+        const target =
+          (((keyInfo.tonicIndex + MAJOR_DEGREE_TO_INTERVAL[degree] + accidentalOffset) % 12) + 12) % 12;
+        const diff = ((target - SPELLING_LETTER_PC[letterIndex] + 18) % 12) - 6;
+        const accidental =
+          diff === 0 ? "" :
+          diff === 1 ? "♯" :
+          diff === -1 ? "♭" :
+          diff === 2 ? "𝄪" :
+          diff === -2 ? "𝄫" : "";
+        return SPELLING_LETTERS[letterIndex] + accidental;
+      }
+
+      function intervalToNns(interval, mode) {
+        const i = ((interval % 12) + 12) % 12;
+
+        const map = {
+          0: "1",
+          1: "♭2",
+          2: "2",
+          3: mode === "minor" ? "♭3" : "♭3",
+          4: "3",
+          5: "4",
+          6: "♯4",
+          7: "5",
+          8: "♭6",
+          9: "6",
+          10: "♭7",
+          11: "7"
+        };
+
+        return map[i] || null;
+      }
+
+
+      function parseNnsComponent(component) {
+        const normalized = normalizeAccidentals(component);
+        const match = normalized.match(/^([#b]?)([1-7])(.*)$/);
+        if (!match) return null;
+
+        return {
+          accidental: match[1] || "",
+          degree: match[2],
+          suffix: match[3] || ""
+        };
+      }
+
+      function parseChordComponent(component) {
+        const normalized = normalizeAccidentals(component);
+        const match = normalized.match(/^([A-Ga-g])(𝄪|𝄫|[#b]?)(.*)$/);
+        if (!match) return null;
+
+        return {
+          root: match[1].toUpperCase() + (match[2] || ""),
+          suffix: match[3] || ""
+        };
+      }
+
+      function nnsComponentToChord(component, keyInfo) {
+        const parsed = parseNnsComponent(component);
+        if (!parsed) return component;
+
+        const accidentalOffset =
+          parsed.accidental === "#" ? 1 :
+          parsed.accidental === "b" ? -1 :
+          0;
+
+        const noteName = spellNnsDegree(parsed.degree, accidentalOffset, keyInfo);
+
+        return noteName + toUnicodeAccidentals(parsed.suffix);
+      }
+
+      function chordComponentToNns(component, keyInfo) {
+        const parsed = parseChordComponent(component);
+        if (!parsed) return component;
+
+        const rootIndex = noteNameToIndex(parsed.root);
+        if (rootIndex == null) return component;
+
+        const interval = (rootIndex - keyInfo.tonicIndex + 12) % 12;
+        const nnsRoot = intervalToNns(interval, keyInfo.mode);
+        if (!nnsRoot) return component;
+
+        return nnsRoot + toUnicodeAccidentals(parsed.suffix);
+      }
+
+      function convertSlashToken(token, mode, keyInfo) {
+        const raw = String(token || "");
+        if (!raw.includes("/")) {
+          return mode === "toChords"
+            ? nnsComponentToChord(raw, keyInfo)
+            : chordComponentToNns(raw, keyInfo);
+        }
+
+        const parts = raw.split("/");
+        if (parts.length !== 2) return raw;
+
+        const [left, right] = parts;
+
+        if (mode === "toChords") {
+          return `${nnsComponentToChord(left, keyInfo)}/${nnsComponentToChord(right, keyInfo)}`;
+        }
+
+        return `${chordComponentToNns(left, keyInfo)}/${chordComponentToNns(right, keyInfo)}`;
+      }
+
+      function convertToken(token, mode, keyInfo) {
+        const raw = String(token || "");
+        if (!raw) return raw;
+        if (raw === "|:" || raw === ":|") return raw;
+
+        if (/^[△▽◇•·∙‧+\-—~^!<>]+$/.test(raw)) return raw;
+
+        return convertSlashToken(raw, mode, keyInfo);
+      }
+
+      function convertBarText(text, mode, keyInfo) {
+        const raw = String(text || "");
+        if (!raw.trim()) return raw;
+
+        const hasRepeatStart = raw.includes("|:");
+        const hasRepeatEnd = raw.includes(":|");
+
+        const stripped = stripRepeatTokens(raw);
+        const tokens = stripped.split(/\s+/).filter(Boolean);
+
+        const converted = tokens
+          .map((t) => convertToken(t, mode, keyInfo))
+          .join(" ")
+          .trim();
+
+        return `${hasRepeatStart ? "|: " : ""}${converted}${hasRepeatEnd ? " :|" : ""}`.trim();
+      }
+
+      function convertChartNotation(mode) {
+        if (state.view === "lyrics") return;
+        const keyInfo = parseKeySignature(state.meta.key || "C");
+
+        state.sections.forEach((section) => {
+          section.bars.forEach((bar) => {
+            normalizeBar(bar);
+            bar.text = convertBarText(bar.text || "", mode, keyInfo);
+          });
+        });
+
+        render();
+      }
+
+      function getSectionNameOptionsHtml() {
+        return COMMON_SECTION_NAMES
+          .map((name) => `<option value="${escapeHtml(name)}"></option>`)
+          .join("");
+      }
+
+      function duplicateSectionAt(sectionIndex) {
+        if (sectionIndex < 0 || sectionIndex >= state.sections.length) return;
+
+        const original = state.sections[sectionIndex];
+        const newBars = original.bars.map((bar) => ({
+          id: uid(),
+          text: bar.text || ""
+        }));
+
+        const newSection = {
+          id: uid(),
+          name: original.name.replace(/ Copy(\s\d+)?$/, "") + " Copy",
+          letter: original.letter || nextSectionLetter(sectionIndex),
+          bars: newBars
+        };
+
+        if (state.view === "lyrics") {
+          newSection.lyrics = original.lyrics || "";
+          newSection.noLyrics = !!original.noLyrics;
+        }
+
+        state.sections.splice(sectionIndex + 1, 0, newSection);
+        relabelSections();
+      }
+
+      function moveSectionAt(sectionIndex, delta) {
+        const targetIndex = sectionIndex + delta;
+
+        if (
+          sectionIndex < 0 ||
+          sectionIndex >= state.sections.length ||
+          targetIndex < 0 ||
+          targetIndex >= state.sections.length
+        ) return;
+
+        const [section] = state.sections.splice(sectionIndex, 1);
+        state.sections.splice(targetIndex, 0, section);
+        relabelSections();
+      }
+
+function updateMetaState() {
+  state.meta.title = els.title.value;
+  state.meta.composer = els.composer.value;
+
+  const mode = detectNotationMode();
+
+  if (mode === "numbers") {
+    state.meta.key = els.songKey.value;
+  } else {
+    // force revert if user tries typing
+    els.songKey.value = state.meta.key || "";
+  }
+  state.meta.timeSig = els.timeSig.value;
+  state.meta.tempo = els.tempo.value;
+  state.meta.barsPerLine = Number(els.barsPerLine.value);
+  state.meta.showSectionLetters = els.showSectionLetters.checked;
+  state.meta.showBarNumbers = els.showBarNumbers.checked;
+}
+
+// Title / Composer / Key / Tempo only affect the header preview text —
+// renderLiveChart() and buildSectionEditor() never read these fields,
+// so a full render() on every keystroke was rebuilding the whole chart
+// and section-editor panel for no reason. This path only updates the
+// cheap preview line.
+function bindMetaPreviewOnly() {
+  updateMetaState();
+  renderMetaPreview();
+  updateKeyFieldState();
+}
+
+// Time Sig / Bars-per-line / the two display toggles DO change how bars
+// are laid out and validated, so the live chart still needs a rebuild —
+// but the section-editor panel (which only depends on state.sections)
+// never does, so we skip buildSectionEditor()/syncSectionBarCounts() here.
+function bindMetaWithLayout() {
+  updateMetaState();
+  renderMetaPreview();
+  renderLiveChart();
+  updateKeyFieldState();
+}
+
+      function initFormFromState() {
+        els.title.value = state.meta.title || "";
+        els.composer.value = state.meta.composer || "";
+        els.songKey.value = state.meta.key || "";
+        els.timeSig.value = state.meta.timeSig || "";
+        els.tempo.value = state.meta.tempo || "";
+        els.barsPerLine.value = String(state.meta.barsPerLine || 4);
+        els.showSectionLetters.checked = !!state.meta.showSectionLetters;
+        els.showBarNumbers.checked = !!state.meta.showBarNumbers;
+        els.notes.value = state.notes || "";
+      }
+
+      function addSection() {
+        state.sections.push(createSection());
+        relabelSections();
+        render();
+      }
+
+      function clearAll() {
+        state.meta = {
+          title: "",
+          composer: "",
+          key: "",
+          timeSig: "",
+          tempo: "",
+          barsPerLine: 4,
+          showSectionLetters: true,
+          showBarNumbers: false
+        };
+        state.notes = "";
+        state.sections = [createSection(0)];
+        state.lyricSheet = null;
+        relabelSections();
+        initFormFromState();
+        render();
+      }
+
+      function downloadJSON() {
+        const payload = JSON.stringify(state, null, 2);
+        const blob = new Blob([payload], { type: "application/json" });
+        const a = document.createElement("a");
+        const safeTitle = (state.meta.title || "nashville-chart")
+          .replace(/[^\w\-]+/g, "-")
+          .replace(/-+/g, "-");
+
+        a.href = URL.createObjectURL(blob);
+        a.download = `${safeTitle}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(a.href);
+      }
+
+      function loadJSONFromFile(file) {
+        if (!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = () => {
+          try {
+            const parsed = JSON.parse(String(reader.result || "{}"));
+            if (!parsed || typeof parsed !== "object") {
+              throw new Error("Invalid JSON");
+            }
+
+            // Loading always opens on the chord chart.
+            state.view = "chart";
+
+            state.meta = {
+              ...state.meta,
+              ...(parsed.meta || {})
+            };
+
+            delete state.meta.notationMode;
+            delete state.meta.showLyrics;
+            delete state.meta.accidentalPreference; // setting no longer exists
+
+            state.notes = typeof parsed.notes === "string" ? parsed.notes : "";
+            state.sections = Array.isArray(parsed.sections) ? parsed.sections : [];
+
+            if (!state.sections.length) {
+              state.sections = [createSection(0)];
+            }
+
+            syncSectionBarCounts();
+            relabelSections();
+
+            // Lyric sheet (a second document saved alongside the chart).
+            state.lyricSheet = null;
+            const savedLyrics = parsed.lyricSheet;
+            if (
+              savedLyrics &&
+              Array.isArray(savedLyrics.sections) &&
+              savedLyrics.sections.length
+            ) {
+              state.lyricSheet = { sections: savedLyrics.sections };
+              state.lyricSheet.sections.forEach(normalizeLyricSection);
+            } else if (
+              state.chartSections.some((s) => s.bars.some((b) => (b.lyrics || "").trim()))
+            ) {
+              // Oldest files kept lyrics on the chord bars: move them onto a
+              // lyric sheet so they aren't lost.
+              state.lyricSheet = createLyricSheetFromChart();
+              state.chartSections.forEach((section, si) => {
+                state.lyricSheet.sections[si].lyrics = barsToLyricText(section.bars);
+              });
+            }
+            // Chord bars never carry lyrics any more.
+            state.chartSections.forEach((s) => s.bars.forEach((b) => { delete b.lyrics; }));
+
+            applyViewUi();
+            initFormFromState();
+            render();
+          } catch (err) {
+            alert("Could not load JSON. Please choose a valid chart file.");
+            console.error(err);
+          }
+        };
+
+        reader.readAsText(file);
+      }
+
+      function moveFocusByDelta(current, delta) {
+        const all = [...document.querySelectorAll(".bar-input[contenteditable='true']")];
+        const idx = all.indexOf(current);
+        if (idx === -1) return;
+
+        const next = all[idx + delta];
+        if (next) {
+          next.focus();
+          placeCaretAtEnd(next);
+        }
+      }
+
+      function placeCaretAtEnd(el) {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false);
+
+        const sel = window.getSelection();
+        if (!sel) return;
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+
+      function insertTokenIntoFocusedBar(token) {
+        const active =
+          document.activeElement &&
+          document.activeElement.classList &&
+          document.activeElement.classList.contains("bar-input")
+            ? document.activeElement
+            : lastFocusedBar;
+
+        if (!active || !active.classList.contains("bar-input")) return;
+
+        const current = active.dataset.rawText || active.textContent || "";
+        active.dataset.rawText = current + token;
+        active.dispatchEvent(new Event("input", { bubbles: true }));
+        active.focus();
+        placeCaretAtEnd(active);
+      }
+
+      function buildSectionEditor() {
+        const wrapper = document.createElement("div");
+        wrapper.style.display = "grid";
+        wrapper.style.gap = "12px";
+
+        const datalist = document.createElement("datalist");
+        datalist.id = "commonSectionNames";
+        datalist.innerHTML = getSectionNameOptionsHtml();
+        wrapper.appendChild(datalist);
+
+        state.sections.forEach((section, sectionIndex) => {
+          const card = document.createElement("div");
+          card.className = "section-card";
+
+          const head = document.createElement("div");
+          head.className = "section-head";
+
+          const nameLabel = document.createElement("label");
+          nameLabel.innerHTML = `
+            Name
+            <input
+              type="text"
+              value="${escapeHtml(section.name)}"
+              data-action="section-name"
+              data-section="${sectionIndex}"
+              list="commonSectionNames"
+              placeholder="Choose or type section name"
+            />
+          `;
+
+          const letterLabel = document.createElement("label");
+          letterLabel.innerHTML = `
+            Letter
+            <input
+              type="text"
+              value="${escapeHtml(section.letter || nextSectionLetter(sectionIndex))}"
+              data-action="section-letter"
+              data-section="${sectionIndex}"
+              maxlength="4"
+            />
+          `;
+
+const barsLabel = document.createElement("label");
+barsLabel.innerHTML = `
+  # Bars
+  <input
+    type="number"
+    min="1"
+    value="${section.bars.length}"
+    data-action="section-bars"
+    data-section="${sectionIndex}"
+  />
+`;
+
+          
+
+          const moveUpBtn = document.createElement("button");
+          moveUpBtn.className = "btn small ghost";
+          moveUpBtn.type = "button";
+          moveUpBtn.textContent = "↑";
+          moveUpBtn.title = "Move section up";
+          moveUpBtn.setAttribute("aria-label", "Move section up");
+          moveUpBtn.dataset.action = "move-section-up";
+          moveUpBtn.dataset.section = sectionIndex;
+          moveUpBtn.disabled = sectionIndex === 0;
+
+          const moveDownBtn = document.createElement("button");
+          moveDownBtn.className = "btn small ghost";
+          moveDownBtn.type = "button";
+          moveDownBtn.textContent = "↓";
+          moveDownBtn.title = "Move section down";
+          moveDownBtn.setAttribute("aria-label", "Move section down");
+          moveDownBtn.dataset.action = "move-section-down";
+          moveDownBtn.dataset.section = sectionIndex;
+          moveDownBtn.disabled = sectionIndex === state.sections.length - 1;
+
+          const duplicateBtn = document.createElement("button");
+          duplicateBtn.className = "btn small secondary";
+          duplicateBtn.type = "button";
+          duplicateBtn.textContent = "Duplicate";
+          duplicateBtn.dataset.action = "duplicate-section";
+          duplicateBtn.dataset.section = sectionIndex;
+
+          const removeBtn = document.createElement("button");
+          removeBtn.className = "btn small danger";
+          removeBtn.type = "button";
+          removeBtn.textContent = "Remove";
+          removeBtn.dataset.action = "remove-section";
+          removeBtn.dataset.section = sectionIndex;
+
+            const addSectionBelowBtn = document.createElement("button");
+addSectionBelowBtn.className = "btn small primary";
+addSectionBelowBtn.type = "button";
+addSectionBelowBtn.textContent = "+ Section";
+addSectionBelowBtn.dataset.action = "add-section-below";
+addSectionBelowBtn.dataset.section = sectionIndex;
+ 
+const buttonGroup = document.createElement("div");
+buttonGroup.className = "section-buttons";
+
+buttonGroup.append(
+  moveUpBtn,
+  moveDownBtn,
+  duplicateBtn,
+  removeBtn,
+  addSectionBelowBtn  
+);
+
+// Lyric sheet sections have no bars, so no "# Bars" field there.
+if (state.view === "lyrics") {
+  head.append(nameLabel, letterLabel, buttonGroup);
+} else {
+  head.append(nameLabel, letterLabel, barsLabel, buttonGroup);
+}
+
+
+          
+          card.append(head);
+          wrapper.append(card);
+        });
+
+        els.sectionEditor.innerHTML = "";
+        els.sectionEditor.append(wrapper);
+        // Input/button listeners are delegated once on els.sectionEditor itself
+        // (see initSectionEditorDelegation) instead of being re-attached to every
+        // input/button on every rebuild.
+      }
+
+      // Attached once, outside buildSectionEditor(), so rebuilding the section
+      // list never re-registers listeners. Uses focusin/focusout (which bubble)
+      // in place of the old per-input focus/blur handlers.
+      function initSectionEditorDelegation() {
+        els.sectionEditor.addEventListener("focusin", (e) => {
+          const input = e.target.closest("input[data-action='section-name']");
+          if (!input) return;
+          input.dataset.prevValue = input.value;
+          input.value = "";
+        });
+
+        els.sectionEditor.addEventListener("focusout", (e) => {
+          const input = e.target.closest("input[data-action='section-name']");
+          if (!input) return;
+          if (!input.value && input.dataset.prevValue) {
+            input.value = input.dataset.prevValue;
+          }
+        });
+
+        els.sectionEditor.addEventListener("input", (e) => {
+          const input = e.target.closest("input[data-action]");
+          if (!input) return;
+
+          const action = input.dataset.action;
+          const sectionIndex = Number(input.dataset.section);
+          if (Number.isNaN(sectionIndex)) return;
+
+          const section = state.sections[sectionIndex];
+
+          //  Name
+          if (action === "section-name") {
+            section.name = input.value;
+            renderLiveChart();
+            return;
+          }
+
+          //  Letter
+          if (action === "section-letter") {
+            section.letter = input.value;
+            renderLiveChart();
+            return;
+          }
+
+          //  Bars (THIS is the important one)
+          if (action === "section-bars") {
+            const desired = Math.max(1, Number(input.value) || 1);
+            const current = section.bars.length;
+
+            if (desired > current) {
+              for (let i = current; i < desired; i++) {
+                section.bars.push(createBar());
+              }
+            } else if (desired < current) {
+              section.bars.splice(desired); //  safer than length=
+            }
+
+            render();   //  full re-render required (section count changed)
+            return;
+          }
+
+          updateKeyFieldState();
+        });
+
+        els.sectionEditor.addEventListener("click", (e) => {
+          const btn = e.target.closest("button[data-action]");
+          if (!btn) return;
+
+          const action = btn.dataset.action;
+          const sectionIndex = Number(btn.dataset.section);
+          if (Number.isNaN(sectionIndex)) return;
+
+          if (action === "add-bar") {
+            state.sections[sectionIndex].bars.push(createBar());
+          }
+
+          if (action === "remove-bar" && state.sections[sectionIndex].bars.length > 1) {
+            state.sections[sectionIndex].bars.pop();
+          }
+
+          if (action === "move-section-up") {
+            moveSectionAt(sectionIndex, -1);
+          }
+
+          if (action === "move-section-down") {
+            moveSectionAt(sectionIndex, 1);
+          }
+
+          if (action === "duplicate-section") {
+            duplicateSectionAt(sectionIndex);
+          }
+
+          if (action === "remove-section") {
+            state.sections.splice(sectionIndex, 1);
+            if (!state.sections.length) state.sections.push(createSection(0));
+            relabelSections();
+          }
+
+          if (action === "add-section-below") {
+            const newSection = createSection(sectionIndex + 1);
+            state.sections.splice(sectionIndex + 1, 0, newSection);
+            relabelSections();
+          }
+
+          render();
+        });
+      }
+
+      function renderMetaPreview() {
+        const lyricsView = state.view === "lyrics";
+        els.previewTitle.textContent =
+          state.meta.title || (lyricsView ? "Untitled Song" : "Untitled Chart");
+
+        const metaBits = [];
+        if (lyricsView) metaBits.push("Lyric Sheet");
+        if (state.meta.composer) metaBits.push(`Composer: ${state.meta.composer}`);
+        if (!lyricsView) {
+          if (state.meta.key) metaBits.push(`Key: ${state.meta.key}`);
+          if (state.meta.timeSig) metaBits.push(`Time: ${state.meta.timeSig}`);
+          if (state.meta.tempo) metaBits.push(`Tempo: ${state.meta.tempo} BPM`);
+        }
+
+        els.previewMeta.innerHTML = metaBits
+          .map((bit) => `<span>${escapeHtml(bit)}</span>`)
+          .join("");
+
+        els.notesPreview.textContent = state.notes || "—";
+      }
+
+      // ---- Lyric sheet ----------------------------------------------------
+      // A separate sheet that mirrors the chord chart's outline of sections,
+      // with one multi-line lyric box per section (plus a "No lyrics"
+      // checkbox that collapses the box to just the section title).
+
+      function normalizeLyricSection(section) {
+        if (typeof section.lyrics !== "string") {
+          // Earlier versions kept one lyric per bar; fold those into lines.
+          section.lyrics = barsToLyricText(section.bars);
+        }
+        section.noLyrics = !!section.noLyrics;
+        section.bars = []; // the lyric sheet has no bars
+      }
+
+      function barsToLyricText(bars) {
+        return (Array.isArray(bars) ? bars : [])
+          .map((b) => String((b && b.lyrics) || "").trim())
+          .filter(Boolean)
+          .join("\n");
+      }
+
+      function createLyricSheetFromChart() {
+        return {
+          sections: state.chartSections.map((section) => ({
+            id: uid(),
+            name: section.name,
+            letter: section.letter,
+            lyrics: "",
+            noLyrics: false,
+            bars: []
+          }))
+        };
+      }
+
+      function applyViewUi() {
+        const lyrics = state.view === "lyrics";
+        document.body.classList.toggle("view-lyrics", lyrics);
+
+        document.getElementById("heroTitle").textContent = lyrics
+          ? "Lyric Sheet"
+          : "Nashville Chart Builder";
+        document.getElementById("heroText").textContent = lyrics
+          ? "A separate lyric sheet to accompany the chord chart. One box per section."
+          : "Build a clean Nashville-style session chart using Nashville numbers or chord names and save/load JSON locally.";
+        document.getElementById("viewToggleBtn").textContent = lyrics
+          ? "← Chord Chart"
+          : "Lyric Sheet →";
+        document.getElementById("viewToggleBtnPreview").textContent = lyrics
+          ? "← Chord Chart"
+          : "Lyric Sheet →";
+        document.getElementById("printBtnSide").textContent = lyrics
+          ? "Print Lyric Sheet"
+          : "Print Chart";
+        document.getElementById("clearBtn").textContent = lyrics
+          ? "Restart from chord chart"
+          : "Clear";
+      }
+
+      function setView(view) {
+        if (view === state.view) return;
+
+        if (view === "lyrics") {
+          if (!state.lyricSheet) state.lyricSheet = createLyricSheetFromChart();
+          state.view = "lyrics";
+        } else {
+          state.view = "chart";
+        }
+
+        applyViewUi();
+        initFormFromState();
+        render();
+        window.scrollTo(0, 0);
+      }
+
+      function restartLyricSheetFromChart() {
+        state.lyricSheet.sections = createLyricSheetFromChart().sections;
+        render();
+      }
+
+      // Grow the box to fit its text so the whole section is always visible.
+      function autosizeLyricBox(box) {
+        box.style.height = "auto";
+        box.style.height = box.scrollHeight + 2 + "px";
+      }
+
+      // The lyric part of one section: a multi-line box, a "No lyrics"
+      // checkbox beside it, and a plain-text copy that is what actually
+      // prints (a <textarea> would print at its on-screen size and scroll).
+      function appendLyricBody(container, section, sectionIndex) {
+        container.classList.add("lyric-section");
+        container.classList.toggle("no-lyrics", !!section.noLyrics);
+
+        const box = document.createElement("textarea");
+        box.className = "lyric-box";
+        box.value = section.lyrics || "";
+        box.rows = 4;
+        box.spellcheck = true;
+        box.placeholder = "Lyrics for this section — one line per row";
+        box.setAttribute(
+          "aria-label",
+          `Lyrics for ${section.name || "section " + (sectionIndex + 1)}`
+        );
+
+        const printCopy = document.createElement("div");
+        printCopy.className = "lyric-print";
+        printCopy.textContent = section.lyrics || "";
+
+        const check = document.createElement("label");
+        check.className = "lyric-none-check";
+        const checkInput = document.createElement("input");
+        checkInput.type = "checkbox";
+        checkInput.checked = !!section.noLyrics;
+        check.append(checkInput, document.createTextNode("No lyrics"));
+
+        box.addEventListener("input", () => {
+          // Store only — no re-render, so typing stays instant and the caret
+          // never jumps.
+          state.sections[sectionIndex].lyrics = box.value;
+          printCopy.textContent = box.value;
+          autosizeLyricBox(box);
+        });
+
+        checkInput.addEventListener("change", () => {
+          state.sections[sectionIndex].noLyrics = checkInput.checked;
+          container.classList.toggle("no-lyrics", checkInput.checked);
+          if (!checkInput.checked) {
+            autosizeLyricBox(box);
+            box.focus();
+          }
+        });
+
+        container.append(box, printCopy, check);
+      }
+
+      function autosizeAllLyricBoxes() {
+        els.liveChart.querySelectorAll(".lyric-box").forEach(autosizeLyricBox);
+      }
+
+      window.addEventListener("resize", () => {
+        if (state.view === "lyrics") autosizeAllLyricBoxes();
+      });
+
+      function renderLiveChart() {
+        els.liveChart.innerHTML = "";
+        const barsPerLine = Number(state.meta.barsPerLine || 4);
+        const meter = getCurrentMeter(); 
+        let globalBarStart = 1;
+
+        state.sections.forEach((section, sectionIndex) => {
+          const container = document.createElement("div");
+          container.className = "chart-section";
+
+          const header = document.createElement("div");
+          header.className = "chart-section-header";
+
+          const left = document.createElement("div");
+          left.className = "chart-section-title";
+
+          if (state.meta.showSectionLetters) {
+            const badge = document.createElement("span");
+            badge.className = "section-badge";
+            badge.textContent = section.letter || nextSectionLetter(sectionIndex);
+            left.appendChild(badge);
+          }
+
+          const title = document.createElement("span");
+          title.textContent = section.name || `Section ${sectionIndex + 1}`;
+          left.appendChild(title);
+
+          const right = document.createElement("div");
+          right.className = "tiny-note";
+
+          header.append(left, right);
+          container.appendChild(header);
+
+          if (state.view === "lyrics") {
+            appendLyricBody(container, section, sectionIndex);
+            els.liveChart.appendChild(container);
+            return;
+          }
+
+          const barsWrap = document.createElement("div");
+          barsWrap.className = "bars";
+
+          const rows = chunkArray(section.bars, barsPerLine);
+
+          rows.forEach((rowBars, rowIndex) => {
+            const row = document.createElement("div");
+            row.className = "bar-row";
+            row.style.setProperty("--bars-per-line", String(barsPerLine));
+
+            const leftmostBarNumber = globalBarStart + rowIndex * barsPerLine;
+
+            if (state.meta.showBarNumbers) {
+              const barNumber = document.createElement("div");
+              barNumber.className = "bar-number";
+              barNumber.textContent = String(leftmostBarNumber);
+              row.appendChild(barNumber);
+            } else {
+              row.classList.add("no-bar-numbers");
+            }
+
+            rowBars.forEach((bar, barIndexInRow) => {
+              const absoluteBarIndex = rowIndex * barsPerLine + barIndexInRow;
+              normalizeBar(bar);
+
+              const barEl = document.createElement("div");
+              barEl.className = "bar";
+
+              const input = document.createElement("div");
+              input.className = "bar-input";
+              input.contentEditable = "true";
+              input.spellcheck = false;
+              input.dataset.section = String(sectionIndex);
+              input.dataset.bar = String(absoluteBarIndex);
+              input.dataset.rawText = bar.text || "";
+
+              const raw = bar.text || "";
+              const hasRepeatStart = raw.includes("|:");
+              const hasRepeatEnd = raw.includes(":|");
+              const display = stripMarkersForDisplay(raw);
+
+              if (hasRepeatStart) barEl.classList.add("repeat-start");
+              if (hasRepeatEnd) barEl.classList.add("repeat-end");
+              barEl.classList.toggle("hold-marker", barHasHoldMarker(raw));
+              barEl.classList.toggle("choke-marker", barHasChokeMarker(raw));
+
+              input.textContent = display;
+              input.setAttribute("data-placeholder", "-");
+              input.setAttribute(
+                "aria-label",
+                `Section ${sectionIndex + 1}, bar ${leftmostBarNumber + barIndexInRow}`
+              );
+
+const parsedBar = parseBarRhythm(raw, meter);
+input.classList.toggle("split", parsedBar.parts.length > 1);
+barEl.classList.toggle("tie-hold", isFullBarTieToken(raw));
+barEl.classList.toggle("invalid", !parsedBar.valid);
+barEl.dataset.error = parsedBar.valid ? "" : parsedBar.reason;
+
+              input.addEventListener("input", (e) => {
+                const s = Number(e.currentTarget.dataset.section);
+                const b = Number(e.currentTarget.dataset.bar);
+
+                let val = e.currentTarget.dataset.rawText;
+                if (typeof val !== "string") {
+                  val = e.currentTarget.textContent || "";
+                }
+
+                if (document.activeElement === e.currentTarget) {
+                  const visible = e.currentTarget.textContent || "";
+                  const existingStart = (state.sections[s].bars[b].text || "").includes("|:");
+                  const existingEnd = (state.sections[s].bars[b].text || "").includes(":|");
+                  val = `${existingStart ? "|: " : ""}${visible}${existingEnd ? " :|" : ""}`;
+                }
+
+                state.sections[s].bars[b].text = val;
+
+                const currentRaw = state.sections[s].bars[b].text || "";
+                const currentDisplay = stripMarkersForDisplay(currentRaw);
+                const currentRepeatStart = currentRaw.includes("|:");
+                const currentRepeatEnd = currentRaw.includes(":|");
+
+                e.currentTarget.dataset.rawText = currentRaw;
+
+                if (e.currentTarget.textContent !== currentDisplay) {
+                  e.currentTarget.textContent = currentDisplay;
+                }
+
+                barEl.classList.toggle("repeat-start", currentRepeatStart);
+                barEl.classList.toggle("repeat-end", currentRepeatEnd);
+                barEl.classList.toggle("hold-marker", barHasHoldMarker(currentRaw));
+                barEl.classList.toggle("choke-marker", barHasChokeMarker(currentRaw));
+               const parsedNow = parseBarRhythm(currentRaw, meter);
+e.currentTarget.classList.toggle("split", parsedNow.parts.length > 1);
+barEl.classList.toggle("tie-hold", isFullBarTieToken(currentRaw));
+barEl.classList.toggle("invalid", !parsedNow.valid);
+barEl.dataset.error = parsedNow.valid ? "" : parsedNow.reason;
+
+
+                placeCaretAtEnd(e.currentTarget);
+              });
+
+              input.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  moveFocusByDelta(e.currentTarget, 1);
+                } else if (e.key === "ArrowRight") {
+                  e.preventDefault();
+                  moveFocusByDelta(e.currentTarget, 1);
+                } else if (e.key === "ArrowLeft") {
+                  e.preventDefault();
+                  moveFocusByDelta(e.currentTarget, -1);
+                } else if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  moveFocusByDelta(e.currentTarget, barsPerLine);
+                } else if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  moveFocusByDelta(e.currentTarget, -barsPerLine);
+                } else if (e.key === "Tab") {
+                  e.preventDefault();
+                  moveFocusByDelta(e.currentTarget, e.shiftKey ? -1 : 1);
+                }
+              });
+
+              input.addEventListener("focus", () => {
+                lastFocusedBar = input;
+              });
+
+
+              input.addEventListener("blur", (e) => {
+                const s = Number(e.currentTarget.dataset.section);
+                const b = Number(e.currentTarget.dataset.bar);
+
+                let rawText = state.sections[s].bars[b].text || "";
+                const hasStart = rawText.includes("|:");
+                const hasEnd = rawText.includes(":|");
+
+                const visible = stripRepeatTokensForEditing(rawText)
+                  .replace(/\s+/g, " ")
+                  .trim();
+
+                rawText = `${hasStart ? "|: " : ""}${visible}${hasEnd ? " :|" : ""}`.trim();
+
+                state.sections[s].bars[b].text = rawText;
+                e.currentTarget.dataset.rawText = rawText;
+                e.currentTarget.textContent = stripMarkersForDisplay(rawText);
+                barEl.classList.toggle("hold-marker", barHasHoldMarker(rawText));
+                barEl.classList.toggle("choke-marker", barHasChokeMarker(rawText));
+                const parsedBlur = parseBarRhythm(rawText, meter);
+e.currentTarget.classList.toggle("split", parsedBlur.parts.length > 1);
+barEl.classList.toggle("tie-hold", isFullBarTieToken(rawText));
+barEl.classList.toggle("invalid", !parsedBlur.valid);
+barEl.dataset.error = parsedBlur.valid ? "" : parsedBlur.reason;
+              });
+
+              barEl.appendChild(input);
+
+              row.appendChild(barEl);
+            });
+
+            barsWrap.appendChild(row);
+          });
+
+          globalBarStart += section.bars.length;
+          container.appendChild(barsWrap);
+          els.liveChart.appendChild(container);
+        });
+
+        if (state.view === "lyrics") autosizeAllLyricBoxes();
+      }
+
+      // Returns every .chart-section currently under #liveChart, regardless
+      // of whether they're direct children or nested inside a column wrapper
+      // from a previous print layout pass.
+      function getChartSections() {
+        const chart = document.getElementById("liveChart");
+        return chart ? Array.from(chart.querySelectorAll(".chart-section")) : [];
+      }
+
+      // Single page, single column, full width — used whenever the chart is
+      // short enough to fit without splitting.
+      function layoutChartSingleColumn() {
+        const chart = document.getElementById("liveChart");
+        const sections = getChartSections();
+        if (!chart || !sections.length) return;
+
+        chart.innerHTML = "";
+        chart.classList.remove("print-two-col");
+        chart.classList.add("print-one-col");
+
+        const col = document.createElement("div");
+        sections.forEach((section) => col.appendChild(section));
+        chart.appendChild(col);
+      }
+
+      // Sets the trial font size, lays every section into one full-width
+      // column, forces a reflow, and measures each section's individual
+      // height plus how much vertical room is available on the page. Both
+      // the single-column and two-column fitting paths below share this one
+      // measurement so they can never disagree about what fits.
+      const PRINT_SAFETY_PX = 48;
+
+      // Chords can be huge; lyrics are running text, so they use a smaller,
+      // gentler range (and may shrink further than chords before the sheet
+      // is allowed to spill onto another page).
+      function getFitFontBounds() {
+        return state.view === "lyrics"
+          ? { singleMin: 1.0, singleMax: 2.0, twoMin: 0.75, twoMax: 1.6 }
+          : { singleMin: 0.9, singleMax: 6, twoMin: 0.9, twoMax: 2.2 };
+      }
+
+      // Puts every section in the LEFT column of the two-column grid (right
+      // column empty), so section heights can be measured at the real
+      // two-column width. This matters for wrapping text such as lyrics: a
+      // section is taller in a half-width column than in a full-width one.
+      function layoutChartAllInLeftColumn() {
+        const chart = document.getElementById("liveChart");
+        const sections = getChartSections();
+        if (!chart || !sections.length) return;
+
+        chart.innerHTML = "";
+        chart.classList.remove("print-one-col");
+        chart.classList.add("print-two-col");
+        const left = document.createElement("div");
+        sections.forEach((section) => left.appendChild(section));
+        chart.append(left, document.createElement("div"));
+      }
+
+      function measureSectionsAtFont(fontSizeRem, twoColumnWidth = false) {
+        const chart = document.getElementById("liveChart");
+        const sections = getChartSections();
+        if (!chart || !sections.length) {
+          return { sections: [], heights: [], availableChartHeight: 0, widthFits: true };
+        }
+
+        document.documentElement.style.setProperty(
+          "--print-bar-font-size",
+          `${fontSizeRem}rem`
+        );
+
+        if (twoColumnWidth) layoutChartAllInLeftColumn();
+        else layoutChartSingleColumn();
+        void chart.offsetHeight;
+
+        const previewHead = document.querySelector(".preview-head");
+        const notesBlock = document.querySelector(".notes-preview");
+        const headHeight = previewHead ? previewHead.getBoundingClientRect().height : 0;
+        const notesHeight = notesBlock ? notesBlock.getBoundingClientRect().height : 0;
+
+        const chartRect = chart.getBoundingClientRect();
+
+        return {
+          sections,
+          // Outer height: each section's own height PLUS its margins. Using
+          // the bare box height under-counts by the gap between sections,
+          // which adds up (and pushes the last section off the page) on
+          // charts with many sections.
+          heights: sections.map((s) => {
+            const style = getComputedStyle(s);
+            return (
+              s.getBoundingClientRect().height +
+              (parseFloat(style.marginTop) || 0) +
+              (parseFloat(style.marginBottom) || 0)
+            );
+          }),
+          // Minus a small safety margin for the fixed padding/margins around
+          // the chart, so a chart that "just fits" can't spill a last line
+          // onto a second page.
+          availableChartHeight:
+            getPrintableHeightPx() - headHeight - notesHeight - PRINT_SAFETY_PX,
+          widthFits: chartRect.width <= getPrintableWidthPx() + 1
+        };
+      }
+
+      // Fills the left column first (as many whole sections as fit on the
+      // page), then flows whatever is left into the right column — a plain
+      // reading-order flow, not a balanced 50/50 split. If everything
+      // actually fits in one column at this font size, it renders as a
+      // single column instead of leaving an empty second one.
+      function layoutChartTwoColumnsFlow(fontSizeRem) {
+        const { sections, heights, availableChartHeight, widthFits } =
+          measureSectionsAtFont(fontSizeRem, true);
+        if (!sections.length) return { fits: true };
+
+        let running = 0;
+        let splitIndex = sections.length;
+        for (let i = 0; i < heights.length; i++) {
+          if (i > 0 && running + heights[i] > availableChartHeight) {
+            splitIndex = i;
+            break;
+          }
+          running += heights[i];
+        }
+
+        const total = heights.reduce((a, b) => a + b, 0);
+
+        // Everything fits in one column at this font size — no second
+        // column needed, so lay it out as a single full-width column.
+        if (splitIndex === sections.length) {
+          layoutChartSingleColumn();
+          return { fits: total <= availableChartHeight && widthFits };
+        }
+
+        const col1Sections = sections.slice(0, splitIndex);
+        const col2Sections = sections.slice(splitIndex);
+        const col1Height = heights.slice(0, splitIndex).reduce((a, b) => a + b, 0);
+        const col2Height = heights.slice(splitIndex).reduce((a, b) => a + b, 0);
+
+        const chart = document.getElementById("liveChart");
+        chart.innerHTML = "";
+        chart.classList.remove("print-one-col");
+        chart.classList.add("print-two-col");
+        const col1 = document.createElement("div");
+        const col2 = document.createElement("div");
+        col1Sections.forEach((s) => col1.appendChild(s));
+        col2Sections.forEach((s) => col2.appendChild(s));
+        chart.appendChild(col1);
+        chart.appendChild(col2);
+
+        return {
+          fits:
+            col1Height <= availableChartHeight &&
+            col2Height <= availableChartHeight &&
+            widthFits
+        };
+      }
+
+      function fitSingleColumnFont() {
+        const { singleMin: minFont, singleMax: maxFont } = getFitFontBounds();
+
+        const atMin = measureSectionsAtFont(minFont);
+        const totalAtMin = atMin.heights.reduce((a, b) => a + b, 0);
+        if (!atMin.sections.length) return { fits: true };
+        if (totalAtMin > atMin.availableChartHeight || !atMin.widthFits) {
+          return { fits: false };
+        }
+
+        let low = minFont;
+        let high = maxFont;
+        let best = minFont;
+
+        for (let i = 0; i < 12; i++) {
+          const mid = (low + high) / 2;
+          const measured = measureSectionsAtFont(mid);
+          const total = measured.heights.reduce((a, b) => a + b, 0);
+          if (total <= measured.availableChartHeight && measured.widthFits) {
+            best = mid;
+            low = mid;
+          } else {
+            high = mid;
+          }
+        }
+
+        // Final pass at the winning font, laid out as a single full-width column.
+        measureSectionsAtFont(best);
+        document.documentElement.style.setProperty(
+          "--print-bar-font-size",
+          `${best.toFixed(3)}rem`
+        );
+        return { fits: true };
+      }
+
+      function fitTwoColumnFlowFont() {
+        const bounds = getFitFontBounds();
+        let low = bounds.twoMin;
+        let high = bounds.twoMax;
+        let best = low;
+
+        for (let i = 0; i < 9; i++) {
+          const mid = (low + high) / 2;
+          if (layoutChartTwoColumnsFlow(mid).fits) {
+            best = mid;
+            low = mid;
+          } else {
+            high = mid;
+          }
+        }
+
+        // Final pass so the DOM reflects the winning split/font together.
+        layoutChartTwoColumnsFlow(best);
+        document.documentElement.style.setProperty(
+          "--print-bar-font-size",
+          `${best.toFixed(3)}rem`
+        );
+      }
+
+      function preparePrintLayout() {
+        document.querySelectorAll(".bar-input").forEach((el) => {
+          const raw = el.dataset.rawText || el.textContent || "";
+          const display = stripMarkersForDisplay(raw);
+          el.textContent = display;
+        });
+
+        // Try to fit everything on one page as a single, maximized-font,
+        // full-width column first. Only fall back to a left-filled
+        // two-column layout if it genuinely doesn't fit even at the
+        // smallest usable font.
+        const singleColumn = fitSingleColumnFont();
+        if (singleColumn.fits) return;
+
+        fitTwoColumnFlowFont();
+      }
+
+      function render() {
+        syncSectionBarCounts();
+        buildSectionEditor();
+        renderMetaPreview();
+        renderLiveChart();
+        els.notesPreview.textContent = state.notes || "—";
+        updateKeyFieldState(); 
+        populateKeyDropdown(); 
+        
+	renderChordPad();
+  	renderRecentChords();
+  
+      }
+
+      [els.title, els.composer, els.songKey, els.tempo].forEach((el) =>
+        el.addEventListener("input", bindMetaPreviewOnly)
+      );
+
+      [els.timeSig, els.barsPerLine, els.showSectionLetters, els.showBarNumbers].forEach(
+        (el) => el.addEventListener("input", bindMetaWithLayout)
+      );
+
+      [els.showSectionLetters, els.showBarNumbers].forEach((el) =>
+        el.addEventListener("change", bindMetaWithLayout)
+      );
+
+      els.notes.addEventListener("input", () => {
+        state.notes = els.notes.value;
+        els.notesPreview.textContent = state.notes || "—";
+      });
+
+
+      document.getElementById("clearBtn").addEventListener("click", () => {
+        if (state.view === "lyrics") {
+          if (
+            confirm(
+              "Clear all lyrics and restart this lyric sheet from the chord chart's current sections?"
+            )
+          ) {
+            restartLyricSheetFromChart();
+          }
+          return;
+        }
+        if (confirm("Clear the chart and start over?")) clearAll();
+      });
+
+      const toggleView = () => setView(state.view === "lyrics" ? "chart" : "lyrics");
+      document.getElementById("viewToggleBtn").addEventListener("click", toggleView);
+      document.getElementById("viewToggleBtnPreview").addEventListener("click", toggleView);
+
+      function doPrint() {
+        window.print();
+      }
+
+      document.getElementById("printBtn").addEventListener("click", doPrint);
+      document.getElementById("printBtnSide").addEventListener("click", doPrint);
+      document.getElementById("printBtnPreview").addEventListener("click", doPrint);
+
+      document.getElementById("downloadBtn").addEventListener("click", downloadJSON);
+
+      document.getElementById("loadBtn").addEventListener("click", () => {
+        els.loadJsonInput.click();
+      });
+
+      els.loadJsonInput.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        loadJSONFromFile(file);
+        e.target.value = "";
+      });
+
+      els.tokenChips.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-token]");
+        if (!btn) return;
+        insertTokenIntoFocusedBar(btn.dataset.token);
+      });
+
+      const toChordsBtn = document.getElementById("toChordsBtn");
+      if (toChordsBtn) {
+        toChordsBtn.addEventListener("click", () => {
+          convertChartNotation("toChords");
+        });
+      }
+
+      const toNnsBtn = document.getElementById("toNnsBtn");
+      if (toNnsBtn) {
+        toNnsBtn.addEventListener("click", () => {
+          convertChartNotation("toNns");
+        });
+      }
+
+      window.addEventListener("beforeprint", () => {
+        preparePrintLayout();
+      });
+
+      // In Chrome/Edge/Firefox the page still has its SCREEN styles when
+      // "beforeprint" fires; the print styles only take effect afterwards,
+      // when the print media query flips. Fitting the font and columns needs
+      // measurements taken under the print styles (print font size, page
+      // width, hidden toolbars), so run the fit again at that point.
+      // preparePrintLayout() is safe to run twice.
+      const printMedia = window.matchMedia("print");
+      const onPrintMediaChange = (e) => {
+        if (e.matches) preparePrintLayout();
+      };
+      if (printMedia.addEventListener) {
+        printMedia.addEventListener("change", onPrintMediaChange);
+      } else if (printMedia.addListener) {
+        printMedia.addListener(onPrintMediaChange);
+      }
+
+      window.addEventListener("afterprint", () => {
+        document.documentElement.style.removeProperty("--print-bar-font-size");
+        const chart = document.getElementById("liveChart");
+        if (chart) chart.classList.remove("print-one-col", "print-two-col");
+        render();
+      });
+
+      initSectionEditorDelegation();
+
+      state.sections = [createSection(0)];
+      relabelSections();
+      initFormFromState();
+      populateKeyDropdown();  
+      render();
+    </script>
+  </body>
+</html>
